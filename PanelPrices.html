@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boise Cascade Westfield Stock Panel List</title>
+    <style>
+        :root {
+            --boise-green: #1e5732;
+            --boise-green-2: #2b7044;
+            --boise-green-soft: #edf5f0;
+            --ink: #17201a;
+            --muted: #637069;
+            --line: #dfe7e2;
+            --surface: #ffffff;
+            --canvas: #f3f6f4;
+            --warning-bg: #fff7db;
+            --warning-border: #e4b63d;
+            --blue: #236fa1;
+            --red: #b63a36;
+            --extended: #23864a;
+            --shadow: 0 12px 34px rgba(24, 62, 38, 0.10);
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: var(--canvas);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            line-height: 1.45;
+        }
+
+        .page-shell { max-width: 1680px; margin: 0 auto; padding: 28px; }
+        .report {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .masthead {
+            display: grid;
+            grid-template-columns: minmax(260px, 1fr) auto;
+            gap: 28px;
+            align-items: center;
+            padding: 28px 32px 24px;
+            border-top: 8px solid var(--boise-green);
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(120deg, #ffffff 55%, #f0f7f2 100%);
+        }
+
+        .brand-row { display: flex; align-items: center; gap: 20px; min-width: 0; }
+        .logo { display: block; max-width: 230px; max-height: 78px; object-fit: contain; }
+        .brand-fallback { display: inline-grid; line-height: .86; color: var(--boise-green); }
+        .brand-fallback span { font-size: 18px; letter-spacing: 4px; }
+        .brand-fallback strong { font-size: 28px; letter-spacing: .5px; }
+        .title-block { padding-left: 20px; border-left: 1px solid var(--line); }
+        .title-block .kicker {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--boise-green-2);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .title-block h1 { margin: 0; font-size: clamp(25px, 3vw, 38px); line-height: 1.08; }
+        .title-block p { margin: 7px 0 0; color: var(--muted); font-size: 14px; }
+
+        .contact-card {
+            min-width: 285px;
+            padding: 17px 19px;
+            background: rgba(255,255,255,.86);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            text-align: right;
+        }
+        .contact-card strong { display: block; color: var(--boise-green); font-size: 18px; }
+        .contact-card span { display: block; color: var(--muted); font-size: 13px; }
+        .contact-card a { color: var(--ink); text-decoration: none; }
+
+        .summary-bar {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1px;
+            background: var(--line);
+            border-bottom: 1px solid var(--line);
+        }
+        .summary-stat { background: #fff; padding: 15px 22px; }
+        .summary-stat span { display: block; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+        .summary-stat strong { display: block; margin-top: 2px; color: var(--boise-green); font-size: 21px; }
+
+        .content { padding: 24px 28px 34px; }
+        .notice {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border: 1px solid #efd17c;
+            border-left: 5px solid var(--warning-border);
+            border-radius: 10px;
+            background: var(--warning-bg);
+        }
+        .notice strong { display: block; color: #6f5310; }
+        .notice p { margin: 2px 0 0; color: #796523; font-size: 13px; }
+
+        .legend { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+        .legend-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.68);
+            color: #4e554f;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-blue { background: var(--blue); }
+        .dot-red { background: var(--red); }
+        .dot-green { background: var(--extended); }
+
+        .toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr) auto;
+            gap: 12px;
+            align-items: center;
+            margin: 0 -28px 24px;
+            padding: 12px 28px;
+            background: rgba(255,255,255,.94);
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            backdrop-filter: blur(8px);
+        }
+        .search-box {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid #cbd7cf;
+            border-radius: 9px;
+            color: var(--ink);
+            background: #fff;
+            font: inherit;
+        }
+        .search-box:focus { outline: 3px solid rgba(43,112,68,.16); border-color: var(--boise-green-2); }
+        .toolbar-actions { display: flex; gap: 8px; }
+        .button {
+            border: 1px solid var(--boise-green);
+            border-radius: 9px;
+            padding: 10px 14px;
+            background: var(--boise-green);
+            color: #fff;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .button.secondary { background: #fff; color: var(--boise-green); }
+
+        .category-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+        .category-link {
+            padding: 7px 11px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--boise-green);
+            background: #fff;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color .16s ease, border-color .16s ease, color .16s ease;
+        }
+        .category-link:hover { border-color: var(--boise-green); background: var(--boise-green-soft); }
+        .category-link.active {
+            border-color: var(--boise-green);
+            color: #fff;
+            background: var(--boise-green);
+            box-shadow: 0 3px 9px rgba(30, 87, 50, .18);
+        }
+
+        /*
+         * Balanced masonry-style category layout.
+         * CSS columns allow every category to stack directly beneath the
+         * previous card instead of sharing a fixed grid-row height.
+         */
+        .report-grid {
+            display: block;
+            column-count: 2;
+            column-gap: 22px;
+            column-fill: balance;
+        }
+        .report-grid.single-category { column-count: 1; }
+        .category-card {
+            display: inline-block;
+            width: 100%;
+            min-width: 0;
+            margin: 0 0 22px;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: #fff;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(30, 87, 50, .055);
+            break-inside: avoid;
+            page-break-inside: avoid;
+            vertical-align: top;
+        }
+        .category-heading {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-end;
+            padding: 15px 17px 13px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--boise-green), var(--boise-green-2));
+        }
+        .category-heading h2 { margin: 1px 0 0; font-size: 18px; line-height: 1.15; text-transform: uppercase; letter-spacing: .5px; }
+        .eyebrow { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; opacity: .72; text-transform: uppercase; }
+        .item-count { white-space: nowrap; font-size: 11px; font-weight: 800; opacity: .82; }
+
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; min-width: 650px; border-collapse: collapse; table-layout: fixed; }
+        .col-item { width: 13%; }
+        .col-size { width: 15%; }
+        .col-description { width: 36%; }
+        .col-price { width: 12%; }
+        thead { display: table-header-group; }
+        th {
+            padding: 10px 9px;
+            color: #f7fbf8;
+            background: #234e34;
+            border-right: 1px solid rgba(255,255,255,.10);
+            text-align: left;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .65px;
+            text-transform: uppercase;
+        }
+        th:nth-child(n+4) { text-align: right; }
+        td { padding: 9px; border-bottom: 1px solid #e8eee9; vertical-align: top; font-size: 12px; }
+        .product-row:nth-of-type(even) td { background: #fbfdfb; }
+        .product-row:hover td { background: #eff7f1; }
+        .type-row td {
+            padding: 7px 10px;
+            background: #edf1ee;
+            border-top: 1px solid #d7e0da;
+            border-bottom: 1px solid #d7e0da;
+            color: #344239;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: .55px;
+            text-transform: uppercase;
+        }
+        .type-row span { display: inline-block; padding-left: 8px; border-left: 4px solid #88988d; }
+        .sku-col { color: #56625a; font-family: Consolas, "Courier New", monospace; font-size: 11px; font-weight: 800; }
+        .size-col { white-space: nowrap; font-weight: 650; }
+        .description-col { color: #273129; }
+        .price-col { text-align: right; white-space: nowrap; font-size: 13px; font-weight: 900; font-variant-numeric: tabular-nums; }
+        .broken-unit { display: block; margin-top: 3px; color: #a24b0f; font-size: 10px; font-weight: 800; }
+        .lead-blue { color: var(--blue); }
+        .lead-red { color: var(--red); }
+        .lead-green { color: var(--extended); }
+        .lead-standard { color: #26332b; }
+        .hidden { display: none !important; }
+        .empty-state { display: none; padding: 34px 18px; text-align: center; color: var(--muted); }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 17px 32px;
+            border-top: 1px solid var(--line);
+            background: #f8faf8;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        @media (max-width: 1180px) {
+            .report-grid { column-count: 1; }
+        }
+        @media (max-width: 820px) {
+            .page-shell { padding: 0; }
+            .report { border: 0; border-radius: 0; }
+            .masthead { grid-template-columns: 1fr; padding: 22px; }
+            .contact-card { min-width: 0; text-align: left; }
+            .summary-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .content { padding: 18px; }
+            .notice { grid-template-columns: 1fr; }
+            .legend { justify-content: flex-start; }
+            .toolbar { grid-template-columns: 1fr; margin: 0 -18px 20px; padding: 11px 18px; }
+            .toolbar-actions { justify-content: stretch; }
+            .button { flex: 1; }
+            .footer { flex-direction: column; padding: 15px 20px; }
+        }
+        @media (max-width: 520px) {
+            .brand-row { align-items: flex-start; flex-direction: column; }
+            .title-block { padding: 14px 0 0; border-left: 0; border-top: 1px solid var(--line); }
+            .summary-stat { padding: 12px 15px; }
+            .summary-stat strong { font-size: 18px; }
+        }
+
+        @media print {
+            @page { size: landscape; margin: .35in; }
+            body { background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            .page-shell { max-width: none; padding: 0; }
+            .report { border: 0; border-radius: 0; box-shadow: none; }
+            .toolbar, .category-nav { display: none !important; }
+            .masthead { padding: 14px 16px; }
+            .summary-stat { padding: 9px 14px; }
+            .content { padding: 14px 10px; }
+            .notice { margin-bottom: 12px; padding: 9px 11px; }
+            .report-grid { display: block; column-count: 1; }
+            .category-card {
+                display: block;
+                width: 100%;
+                margin-bottom: 14px;
+                border-radius: 0;
+                box-shadow: none;
+                break-inside: auto;
+                page-break-inside: auto;
+            }
+            .category-heading { padding: 9px 11px; }
+            .table-wrap { overflow: visible; }
+            table { min-width: 0; font-size: 9px; }
+            th { padding: 5px 6px; font-size: 8px; }
+            td { padding: 5px 6px; font-size: 9px; }
+            .price-col { font-size: 9px; }
+            tr { break-inside: avoid; }
+            .footer { padding: 10px 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <main class="report">
+            <header class="masthead">
+                <div class="brand-row">
+                    <img src="data:image/png;base64,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" alt="Boise Cascade" class="logo">
+                    <div class="title-block">
+                        <span class="kicker">Westfield, Massachusetts</span>
+                        <h1>Stock Panel Price List</h1>
+                        <p>Prices effective immediately · Subject to stock on hand</p>
+                    </div>
+                </div>
+                <div class="contact-card">
+                    <strong>Steve Wojcik</strong>
+                    <span>Commodity Department Manager</span>
+                    <span><a href="tel:+14135722152">413-572-2152</a> · <a href="mailto:SteveWojcik@bc.com">SteveWojcik@bc.com</a></span>
+                </div>
+            </header>
+
+            <div class="summary-bar">
+                <div class="summary-stat"><span>Products</span><strong>50</strong></div>
+                <div class="summary-stat"><span>Categories</span><strong>7</strong></div>
+                <div class="summary-stat"><span>Live-priced</span><strong>30</strong></div>
+                <div class="summary-stat"><span>Manual fallback</span><strong>20</strong></div>
+            </div>
+
+            <div class="content">
+                <div class="notice">
+                    <div>
+                        <strong>Mix and match panels to achieve 4-unit and truckload pricing tiers.</strong>
+                        <p>Broken-unit pricing is shown beneath the applicable product description.</p>
+                    </div>
+                    <div class="legend" aria-label="Lead-time legend">
+                        <span class="legend-chip"><i class="legend-dot dot-blue"></i>2 weeks</span>
+                        <span class="legend-chip"><i class="legend-dot dot-red"></i>3–4 weeks</span>
+                        <span class="legend-chip"><i class="legend-dot dot-green"></i>Extended</span>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <input id="productSearch" class="search-box" type="search" placeholder="Search item number, size, description, type, or category…" aria-label="Search products">
+                    <div class="toolbar-actions">
+                        <button id="clearSearch" class="button secondary" type="button">Clear Filters</button>
+                        <button class="button" type="button" onclick="window.print()">Print / PDF</button>
+                    </div>
+                </div>
+
+                <nav class="category-nav" aria-label="Product categories"><button class="category-link active" type="button" data-category="all" aria-pressed="true">Show All</button><button class="category-link" type="button" data-category="sheathing" aria-pressed="false">SHEATHING</button><button class="category-link" type="button" data-category="sheathing-str-1" aria-pressed="false">SHEATHING STR 1</button><button class="category-link" type="button" data-category="firul" aria-pressed="false">FIRUL</button><button class="category-link" type="button" data-category="sanded" aria-pressed="false">SANDED</button><button class="category-link" type="button" data-category="siding" aria-pressed="false">SIDING</button><button class="category-link" type="button" data-category="specialty" aria-pressed="false">SPECIALTY</button><button class="category-link" type="button" data-category="hardwood" aria-pressed="false">HARDWOOD</button></nav>
+                <div id="reportGrid" class="report-grid">
+            <section class="category-card" id="sheathing">
+                <div class="category-heading">
+                    <div>
+                        <span class="eyebrow">Panel category</span>
+                        <h2>SHEATHING</h2>
+                    </div>
+                    <span class="item-count">13 items</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <colgroup>
+                            <col class="col-item">
+                            <col class="col-size">
+                            <col class="col-description">
+                            <col class="col-price">
+                            <col class="col-price">
+                            <col class="col-price">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Item #</th>
+                                <th>Size</th>
+                                <th>Description</th>
+                                <th>1 unit</th>
+                                <th>4+ units</th>
+                                <th>Truckload</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr class="type-row"><td colspan="6"><span>FIR</span></td></tr><tr class="product-row" data-search="sheathing fir 1100020 3/8 4x8 plywood cdx western 24/0"><td class="sku-col">1100020</td><td class="size-col">3/8 4X8</td><td class="description-col">PLYWOOD CDX WESTERN 24/0</td><td class="price-col lead-standard">$672</td><td class="price-col lead-standard">$640</td><td class="price-col lead-standard">$615</td></tr><tr class="product-row" data-search="sheathing fir 1100019 15/32 4x8 plywood cdx western 32/16 4 ply"><td class="sku-col">1100019</td><td class="size-col">15/32 4X8</td><td class="description-col">PLYWOOD CDX WESTERN 32/16 4 PLY</td><td class="price-col lead-standard">$829</td><td class="price-col lead-standard">$787</td><td class="price-col lead-standard">$754</td></tr><tr class="product-row" data-search="sheathing fir 1100025 1/2 4x8 plywood cdx western 32/16 5 ply"><td class="sku-col">1100025</td><td class="size-col">1/2 4X8</td><td class="description-col">PLYWOOD CDX WESTERN 32/16 5 PLY</td><td class="price-col lead-standard">$913</td><td class="price-col lead-standard">$871</td><td class="price-col lead-standard">$838</td></tr><tr class="product-row" data-search="sheathing fir 1100036 19/32 4x8 plywood cdx western 40/20 4 ply"><td class="sku-col">1100036</td><td class="size-col">19/32 4X8</td><td class="description-col">PLYWOOD CDX WESTERN 40/20 4 PLY</td><td class="price-col lead-standard">$983</td><td class="price-col lead-standard">$931</td><td class="price-col lead-standard">$890</td></tr><tr class="product-row" data-search="sheathing fir 1100033 19/32 4x8 plywood cdx western 40/20 5 ply"><td class="sku-col">1100033</td><td class="size-col">19/32 4X8</td><td class="description-col">PLYWOOD CDX WESTERN 40/20 5 PLY</td><td class="price-col lead-standard">$1,018</td><td class="price-col lead-standard">$966</td><td class="price-col lead-standard">$925</td></tr><tr class="product-row" data-search="sheathing fir 1100027 1/2 4x10 plywood cdx western 32/16 4ply"><td class="sku-col">1100027</td><td class="size-col">1/2 4X10</td><td class="description-col">PLYWOOD CDX WESTERN 32/16 4PLY</td><td class="price-col lead-standard">$934</td><td class="price-col lead-standard">$909</td><td class="price-col lead-standard">$859</td></tr><tr class="product-row" data-search="sheathing fir 1100050 1/2 4x10 plywood cdx western 32/16 5 ply"><td class="sku-col">1100050</td><td class="size-col">1/2 4X10</td><td class="description-col">PLYWOOD CDX WESTERN 32/16 5 PLY</td><td class="price-col lead-standard">$1,007</td><td class="price-col lead-standard">$982</td><td class="price-col lead-standard">$932</td></tr><tr class="product-row" data-search="sheathing fir 1100074 23/32 4x8 plywood cdx western 48/24 4 ply"><td class="sku-col">1100074</td><td class="size-col">23/32 4X8</td><td class="description-col">PLYWOOD CDX WESTERN 48/24 4 PLY</td><td class="price-col lead-standard">$1,187</td><td class="price-col lead-standard">$1,124</td><td class="price-col lead-standard">$1,074</td></tr><tr class="product-row" data-search="sheathing fir 1100075 23/32 4x8 plywood cdx western 48/24 5 ply"><td class="sku-col">1100075</td><td class="size-col">23/32 4X8</td><td class="description-col">PLYWOOD CDX WESTERN 48/24 5 PLY</td><td class="price-col lead-standard">$1,207</td><td class="price-col lead-standard">$1,144</td><td class="price-col lead-standard">$1,094</td></tr><tr class="type-row"><td colspan="6"><span>SYP</span></td></tr><tr class="product-row" data-search="sheathing syp 1107050 11/32 4x8 rtd sheathing syp plywood"><td class="sku-col">1107050</td><td class="size-col">11/32 4X8</td><td class="description-col">RTD SHEATHING SYP PLYWOOD</td><td class="price-col lead-standard">$648</td><td class="price-col lead-standard">$616</td><td class="price-col lead-standard">$591</td></tr><tr class="product-row" data-search="sheathing syp 1107104 15/32 4x8 rtd sheathing syp 4 ply"><td class="sku-col">1107104</td><td class="size-col">15/32 4X8</td><td class="description-col">RTD SHEATHING SYP 4 PLY</td><td class="price-col lead-standard">$781</td><td class="price-col lead-standard">$739</td><td class="price-col lead-standard">$706</td></tr><tr class="product-row" data-search="sheathing syp 1107209 19/32 4x8 rtd sheathing syp 4 ply"><td class="sku-col">1107209</td><td class="size-col">19/32 4X8</td><td class="description-col">RTD SHEATHING SYP 4 PLY</td><td class="price-col lead-standard">$925</td><td class="price-col lead-standard">$873</td><td class="price-col lead-standard">$832</td></tr><tr class="product-row" data-search="sheathing syp 1107300 23/32 4x8 rtd sheathing syp"><td class="sku-col">1107300</td><td class="size-col">23/32 4X8</td><td class="description-col">RTD SHEATHING SYP</td><td class="price-col lead-standard">$1,146</td><td class="price-col lead-standard">$1,083</td><td class="price-col lead-standard">$1,033</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section class="category-card" id="sheathing-str-1">
+                <div class="category-heading">
+                    <div>
+                        <span class="eyebrow">Panel category</span>
+                        <h2>SHEATHING STR 1</h2>
+                    </div>
+                    <span class="item-count">3 items</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <colgroup>
+                            <col class="col-item">
+                            <col class="col-size">
+                            <col class="col-description">
+                            <col class="col-price">
+                            <col class="col-price">
+                            <col class="col-price">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Item #</th>
+                                <th>Size</th>
+                                <th>Description</th>
+                                <th>1 unit</th>
+                                <th>4+ units</th>
+                                <th>Truckload</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr class="type-row"><td colspan="6"><span>FIR</span></td></tr><tr class="product-row" data-search="sheathing str 1 fir 1100338 15/32 4x8 western str 1 15/32&quot;"><td class="sku-col">1100338</td><td class="size-col">15/32 4X8</td><td class="description-col">WESTERN STR 1 15/32&quot;</td><td class="price-col lead-standard">$864</td><td class="price-col lead-standard">$822</td><td class="price-col lead-standard">$789</td></tr><tr class="product-row" data-search="sheathing str 1 fir 1101119 19/32 4x8 western str 1 19/32&quot;"><td class="sku-col">1101119</td><td class="size-col">19/32 4X8</td><td class="description-col">WESTERN STR 1 19/32&quot;</td><td class="price-col lead-standard">$1,048</td><td class="price-col lead-standard">$996</td><td class="price-col lead-standard">$955</td></tr><tr class="product-row" data-search="sheathing str 1 fir 1100140 23/32 4x8 western str 1 23/32&quot;"><td class="sku-col">1100140</td><td class="size-col">23/32 4X8</td><td class="description-col">WESTERN STR 1 23/32&quot;</td><td class="price-col lead-standard">$1,237</td><td class="price-col lead-standard">$1,174</td><td class="price-col lead-standard">$1,124</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section class="category-card" id="firul">
+                <div class="category-heading">
+                    <div>
+                        <span class="eyebrow">Panel category</span>
+                        <h2>FIRUL</h2>
+                    </div>
+                    <span class="item-count">5 items</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <colgroup>
+                            <col class="col-item">
+                            <col class="col-size">
+                            <col class="col-description">
+                            <col class="col-price">
+                            <col class="col-price">
+                            <col class="col-price">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Item #</th>
+                                <th>Size</th>
+                                <th>Description</th>
+                                <th>1 unit</th>
+                                <th>4+ units</th>
+                                <th>Truckload</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr class="type-row"><td colspan="6"><span>SEUL</span></td></tr><tr class="product-row" data-search="firul seul 1103028 3/8 4x8 ul se b fir plywood"><td class="sku-col">1103028</td><td class="size-col">3/8 4X8</td><td class="description-col">UL SE B FIR PLYWOOD</td><td class="price-col lead-standard">$948</td><td class="price-col lead-standard">$916</td><td class="price-col lead-standard">$891</td></tr><tr class="product-row" data-search="firul seul 1103022 1/2 4x8 ul se b fir plywood"><td class="sku-col">1103022</td><td class="size-col">1/2 4X8</td><td class="description-col">UL SE B FIR PLYWOOD</td><td class="price-col lead-standard">$1,121</td><td class="price-col lead-standard">$1,079</td><td class="price-col lead-standard">$1,046</td></tr><tr class="product-row" data-search="firul seul 1103024 5/8 4x8 ul se b fir plywood"><td class="sku-col">1103024</td><td class="size-col">5/8 4X8</td><td class="description-col">UL SE B FIR PLYWOOD</td><td class="price-col lead-standard">$1,225</td><td class="price-col lead-standard">$1,173</td><td class="price-col lead-standard">$1,132</td></tr><tr class="product-row" data-search="firul seul 1103024 3/4 4x8 ul se b fir plywood"><td class="sku-col">1103024</td><td class="size-col">3/4 4X8</td><td class="description-col">UL SE B FIR PLYWOOD</td><td class="price-col lead-standard">$1,368</td><td class="price-col lead-standard">$1,305</td><td class="price-col lead-standard">$1,255</td></tr><tr class="type-row"><td colspan="6"><span>TGUL</span></td></tr><tr class="product-row" data-search="firul tgul 1103300 23/32 4x8 ply/fir sturdi 24&quot;oc t&amp;g scant western"><td class="sku-col">1103300</td><td class="size-col">23/32 4X8</td><td class="description-col">PLY/FIR STURDI 24&quot;OC T&amp;G SCANT WESTERN</td><td class="price-col lead-standard">$1,277</td><td class="price-col lead-standard">$1,214</td><td class="price-col lead-standard">$1,164</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section class="category-card" id="sanded">
+                <div class="category-heading">
+                    <div>
+                        <span class="eyebrow">Panel category</span>
+                        <h2>SANDED</h2>
+                    </div>
+                    <span class="item-count">12 items</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <colgroup>
+                            <col class="col-item">
+                            <col class="col-size">
+                            <col class="col-description">
+                            <col class="col-price">
+                            <col class="col-price">
+                            <col class="col-price">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Item #</th>
+                                <th>Size</th>
+                                <th>Description</th>
+                                <th>1 unit</th>
+                                <th>4+ units</th>
+                                <th>Truckload</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr class="type-row"><td colspan="6"><span>FIR AC/UL</span></td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206702 1/4 4x8 ac/ul exterior sanded western fir"><td class="sku-col">1206702</td><td class="size-col">1/4 4X8</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col lead-standard">$881</td><td class="price-col lead-standard">$858</td><td class="price-col lead-standard">$840</td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206703 11/32 4x8 ac/ul exterior sanded western fir"><td class="sku-col">1206703</td><td class="size-col">11/32 4X8</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col lead-standard">$1,046</td><td class="price-col lead-standard">$1,014</td><td class="price-col lead-standard">$989</td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206714 15/32 4x8 ac/ul exterior sanded western fir"><td class="sku-col">1206714</td><td class="size-col">15/32 4X8</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col lead-standard">$1,328</td><td class="price-col lead-standard">$1,286</td><td class="price-col lead-standard">$1,253</td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206695 19/32 4x8 ac/ul exterior sanded western fir"><td class="sku-col">1206695</td><td class="size-col">19/32 4X8</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col lead-standard">$1,603</td><td class="price-col lead-standard">$1,551</td><td class="price-col lead-standard">$1,510</td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206726 23/32 4x8 ac/ul exterior sanded western fir"><td class="sku-col">1206726</td><td class="size-col">23/32 4X8</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col lead-standard">$1,796</td><td class="price-col lead-standard">$1,733</td><td class="price-col lead-standard">$1,683</td></tr><tr class="type-row"><td colspan="6"><span>RADIATA AC/UL</span></td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240004 1/4 4x8 ac/ul radiata pine 6mm"><td class="sku-col">1240004</td><td class="size-col">1/4 4X8</td><td class="description-col">AC/UL RADIATA PINE 6mm</td><td class="price-col lead-standard">$672</td><td class="price-col lead-standard">$649</td><td class="price-col lead-standard">$631</td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240011 11/32 4x8 ac/ul radiata pine 6mm"><td class="sku-col">1240011</td><td class="size-col">11/32 4X8</td><td class="description-col">AC/UL RADIATA PINE 6mm</td><td class="price-col lead-standard">$789</td><td class="price-col lead-standard">$757</td><td class="price-col lead-standard">$732</td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240015 15/32 4x8 ac/ul radiata pine 6mm"><td class="sku-col">1240015</td><td class="size-col">15/32 4X8</td><td class="description-col">AC/UL RADIATA PINE 6mm</td><td class="price-col lead-standard">$1,094</td><td class="price-col lead-standard">$1,052</td><td class="price-col lead-standard">$1,019</td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240019 19/32 4x8 ac/ul radiata pine 6mm"><td class="sku-col">1240019</td><td class="size-col">19/32 4X8</td><td class="description-col">AC/UL RADIATA PINE 6mm</td><td class="price-col lead-standard">$1,175</td><td class="price-col lead-standard">$1,123</td><td class="price-col lead-standard">$1,082</td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240023 23/32 4x8 ac/ul radiata pine 6mm"><td class="sku-col">1240023</td><td class="size-col">23/32 4X8</td><td class="description-col">AC/UL RADIATA PINE 6mm</td><td class="price-col lead-standard">$1,341</td><td class="price-col lead-standard">$1,278</td><td class="price-col lead-standard">$1,228</td></tr><tr class="type-row"><td colspan="6"><span>MARINE</span></td></tr><tr class="product-row" data-search="sanded marine 1204130 15/32 4x8 ab marine fir -custom"><td class="sku-col">1204130</td><td class="size-col">15/32 4X8</td><td class="description-col">AB MARINE FIR -CUSTOM</td><td class="price-col lead-standard">$2,353</td><td class="price-col lead-standard">$2,311</td><td class="price-col lead-standard">$2,278</td></tr><tr class="product-row" data-search="sanded marine 1204150 23/32 4x8 ab marine fir -custom"><td class="sku-col">1204150</td><td class="size-col">23/32 4X8</td><td class="description-col">AB MARINE FIR -CUSTOM</td><td class="price-col lead-standard">$2,999</td><td class="price-col lead-standard">$2,936</td><td class="price-col lead-standard">$2,886</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section class="category-card" id="siding">
+                <div class="category-heading">
+                    <div>
+                        <span class="eyebrow">Panel category</span>
+                        <h2>SIDING</h2>
+                    </div>
+                    <span class="item-count">3 items</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <colgroup>
+                            <col class="col-item">
+                            <col class="col-size">
+                            <col class="col-description">
+                            <col class="col-price">
+                            <col class="col-price">
+                            <col class="col-price">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Item #</th>
+                                <th>Size</th>
+                                <th>Description</th>
+                                <th>1 unit</th>
+                                <th>4+ units</th>
+                                <th>Truckload</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr class="type-row"><td colspan="6"><span>FIR T111</span></td></tr><tr class="product-row" data-search="siding fir t111 1301440 19/32 4x8 4x8 t111 fir 8&quot;oc sl 303-18"><td class="sku-col">1301440</td><td class="size-col">19/32 4X8</td><td class="description-col">4x8 T111 FIR 8&quot;OC SL 303-18</td><td class="price-col lead-standard">$1,807</td><td class="price-col lead-standard">$1,755</td><td class="price-col lead-standard">$1,714</td></tr><tr class="product-row" data-search="siding fir t111 1301460 19/32 4x10 4x8 t111 fir 8&quot;oc sl 303-18"><td class="sku-col">1301460</td><td class="size-col">19/32 4X10</td><td class="description-col">4x8 T111 FIR 8&quot;OC SL 303-18</td><td class="price-col lead-standard">$2,153</td><td class="price-col lead-standard">$2,101</td><td class="price-col lead-standard">$2,060</td></tr><tr class="type-row"><td colspan="6"><span>RADIATA T111</span></td></tr><tr class="product-row" data-search="siding radiata t111 1325150 19/32 4x8 radiata t111 8&quot; oc sl 303-6"><td class="sku-col">1325150</td><td class="size-col">19/32 4X8</td><td class="description-col">RADIATA T111 8&quot; OC SL 303-6</td><td class="price-col lead-standard">$1,369</td><td class="price-col lead-standard">$1,317</td><td class="price-col lead-standard">$1,276</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section class="category-card" id="specialty">
+                <div class="category-heading">
+                    <div>
+                        <span class="eyebrow">Panel category</span>
+                        <h2>SPECIALTY</h2>
+                    </div>
+                    <span class="item-count">6 items</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <colgroup>
+                            <col class="col-item">
+                            <col class="col-size">
+                            <col class="col-description">
+                            <col class="col-price">
+                            <col class="col-price">
+                            <col class="col-price">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Item #</th>
+                                <th>Size</th>
+                                <th>Description</th>
+                                <th>1 unit</th>
+                                <th>4+ units</th>
+                                <th>Truckload</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr class="type-row"><td colspan="6"><span>FORM</span></td></tr><tr class="product-row" data-search="specialty form 1205045 23/32 4x8 import bboes - ngs"><td class="sku-col">1205045</td><td class="size-col">23/32 4X8</td><td class="description-col">IMPORT BBOES - NGS</td><td class="price-col lead-standard">$1,032</td><td class="price-col lead-standard">$969</td><td class="price-col lead-standard">$919</td></tr><tr class="product-row" data-search="specialty form 1205920 23/32 4x8 import film face 170/170"><td class="sku-col">1205920</td><td class="size-col">23/32 4X8</td><td class="description-col">IMPORT FILM FACE 170/170</td><td class="price-col lead-standard">$1,396</td><td class="price-col lead-standard">$1,333</td><td class="price-col lead-standard">$1,283</td></tr><tr class="type-row"><td colspan="6"><span>PAINT MDO</span></td></tr><tr class="product-row" data-search="specialty paint mdo 1210210 15/32 4x8 mdo g1s - paint grade general use"><td class="sku-col">1210210</td><td class="size-col">15/32 4X8</td><td class="description-col">MDO G1S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $2,334 /m</span></td><td class="price-col lead-standard">$2,134</td><td class="price-col lead-standard">$2,092</td><td class="price-col lead-standard">$2,059</td></tr><tr class="product-row" data-search="specialty paint mdo 1210230 15/32 4x8 mdo g1s - paint grade general use"><td class="sku-col">1210230</td><td class="size-col">15/32 4X8</td><td class="description-col">MDO G1S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $2,504 /m</span></td><td class="price-col lead-standard">$2,304</td><td class="price-col lead-standard">$2,262</td><td class="price-col lead-standard">$2,229</td></tr><tr class="product-row" data-search="specialty paint mdo 1210410 23/32 4x8 mdo g1s - paint grade general use"><td class="sku-col">1210410</td><td class="size-col">23/32 4X8</td><td class="description-col">MDO G1S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $2,857 /m</span></td><td class="price-col lead-standard">$2,657</td><td class="price-col lead-standard">$2,594</td><td class="price-col lead-standard">$2,544</td></tr><tr class="product-row" data-search="specialty paint mdo 1210430 23/32 4x8 mdo g1s - paint grade general use"><td class="sku-col">1210430</td><td class="size-col">23/32 4X8</td><td class="description-col">MDO G1S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $3,028 /m</span></td><td class="price-col lead-standard">$2,828</td><td class="price-col lead-standard">$2,765</td><td class="price-col lead-standard">$2,715</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <section class="category-card" id="hardwood">
+                <div class="category-heading">
+                    <div>
+                        <span class="eyebrow">Panel category</span>
+                        <h2>HARDWOOD</h2>
+                    </div>
+                    <span class="item-count">8 items</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <colgroup>
+                            <col class="col-item">
+                            <col class="col-size">
+                            <col class="col-description">
+                            <col class="col-price">
+                            <col class="col-price">
+                            <col class="col-price">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Item #</th>
+                                <th>Size</th>
+                                <th>Description</th>
+                                <th>1 unit</th>
+                                <th>4+ units</th>
+                                <th>Truckload</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr class="type-row"><td colspan="6"><span>BIRCH</span></td></tr><tr class="product-row" data-search="hardwood birch 1400110 1/4&quot; 4x8 oz a4 domestic birch - fir core"><td class="sku-col">1400110</td><td class="size-col">1/4&quot; 4X8 OZ</td><td class="description-col">A4 DOMESTIC BIRCH - FIR CORE</td><td class="price-col lead-standard">$1,280</td><td class="price-col lead-standard">$1,257</td><td class="price-col lead-standard">$1,239</td></tr><tr class="product-row" data-search="hardwood birch 1400411 1/2&quot; 4x8 oz a4 domestic birch - fir core"><td class="sku-col">1400411</td><td class="size-col">1/2&quot; 4X8 OZ</td><td class="description-col">A4 DOMESTIC BIRCH - FIR CORE</td><td class="price-col lead-standard">$2,376</td><td class="price-col lead-standard">$2,334</td><td class="price-col lead-standard">$2,301</td></tr><tr class="product-row" data-search="hardwood birch 1400096 3/4&quot; 4x8 oz a4 domestic birch - fir core"><td class="sku-col">1400096</td><td class="size-col">3/4&quot; 4X8 OZ</td><td class="description-col">A4 DOMESTIC BIRCH - FIR CORE</td><td class="price-col lead-standard">$2,899</td><td class="price-col lead-standard">$2,836</td><td class="price-col lead-standard">$2,786</td></tr><tr class="type-row"><td colspan="6"><span>IMPORT BIRCH</span></td></tr><tr class="product-row" data-search="hardwood import birch 1400393 1/2&quot; 4x8 oz c2 import"><td class="sku-col">1400393</td><td class="size-col">1/2&quot; 4X8 OZ</td><td class="description-col">C2 IMPORT</td><td class="price-col lead-standard">$1,202</td><td class="price-col lead-standard">$1,160</td><td class="price-col lead-standard">$1,127</td></tr><tr class="product-row" data-search="hardwood import birch 1400491 3/4&quot; 4x8 oz c2 import"><td class="sku-col">1400491</td><td class="size-col">3/4&quot; 4X8 OZ</td><td class="description-col">C2 IMPORT</td><td class="price-col lead-standard">$1,792</td><td class="price-col lead-standard">$1,729</td><td class="price-col lead-standard">$1,679</td></tr><tr class="product-row" data-search="hardwood import birch 1400178 5.2mm c2 import w/ x pattern"><td class="sku-col">1400178</td><td class="size-col">5.2MM</td><td class="description-col">C2 IMPORT W/ X PATTERN</td><td class="price-col lead-standard">$598</td><td class="price-col lead-standard">$575</td><td class="price-col lead-standard">$557</td></tr><tr class="type-row"><td colspan="6"><span>LAUAN</span></td></tr><tr class="product-row" data-search="hardwood lauan 1402199 5.2mm 4x8 ext lauan"><td class="sku-col">1402199</td><td class="size-col">5.2MM</td><td class="description-col">4X8 EXT LAUAN</td><td class="price-col lead-standard">$598</td><td class="price-col lead-standard">$575</td><td class="price-col lead-standard">$557</td></tr><tr class="product-row" data-search="hardwood lauan 1402205 5.5mm 4x8 ext lauan"><td class="sku-col">1402205</td><td class="size-col">5.5MM</td><td class="description-col">4X8 EXT LAUAN</td><td class="price-col lead-standard">$621</td><td class="price-col lead-standard">$598</td><td class="price-col lead-standard">$580</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            </div>
+                <div id="emptyState" class="empty-state">No products match that search.</div>
+            </div>
+
+            <footer class="footer">
+                <span>Generated July 28, 2026 at 9:34 AM</span>
+                <span>Boise Cascade Building Materials Distribution · Westfield</span>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        (() => {
+            const search = document.getElementById('productSearch');
+            const clear = document.getElementById('clearSearch');
+            const emptyState = document.getElementById('emptyState');
+            const reportGrid = document.getElementById('reportGrid');
+            const cards = Array.from(document.querySelectorAll('.category-card'));
+            const categoryButtons = Array.from(document.querySelectorAll('.category-link'));
+            let activeCategory = 'all';
+
+            function updateCategoryButtons() {
+                categoryButtons.forEach(button => {
+                    const isActive = button.dataset.category === activeCategory;
+                    button.classList.toggle('active', isActive);
+                    button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                });
+                reportGrid.classList.toggle('single-category', activeCategory !== 'all');
+            }
+
+            function applyFilters() {
+                const query = search.value.trim().toLowerCase();
+                let visibleProducts = 0;
+
+                cards.forEach(card => {
+                    const categoryMatch = activeCategory === 'all' || card.id === activeCategory;
+                    const productRows = Array.from(card.querySelectorAll('.product-row'));
+                    const typeRows = Array.from(card.querySelectorAll('.type-row'));
+
+                    productRows.forEach(row => {
+                        const searchMatch = !query || row.dataset.search.includes(query);
+                        const match = categoryMatch && searchMatch;
+                        row.classList.toggle('hidden', !match);
+                        if (match) visibleProducts += 1;
+                    });
+
+                    typeRows.forEach(typeRow => {
+                        let next = typeRow.nextElementSibling;
+                        let hasVisibleProduct = false;
+                        while (next && !next.classList.contains('type-row')) {
+                            if (next.classList.contains('product-row') && !next.classList.contains('hidden')) {
+                                hasVisibleProduct = true;
+                                break;
+                            }
+                            next = next.nextElementSibling;
+                        }
+                        typeRow.classList.toggle('hidden', !hasVisibleProduct);
+                    });
+
+                    const cardVisible = categoryMatch && productRows.some(
+                        row => !row.classList.contains('hidden')
+                    );
+                    card.classList.toggle('hidden', !cardVisible);
+                });
+
+                emptyState.style.display = visibleProducts ? 'none' : 'block';
+            }
+
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const selectedCategory = button.dataset.category || 'all';
+                    activeCategory = (
+                        selectedCategory === activeCategory && selectedCategory !== 'all'
+                    ) ? 'all' : selectedCategory;
+                    updateCategoryButtons();
+                    applyFilters();
+                });
+            });
+
+            search.addEventListener('input', applyFilters);
+            clear.addEventListener('click', () => {
+                search.value = '';
+                activeCategory = 'all';
+                updateCategoryButtons();
+                applyFilters();
+                search.focus();
+            });
+
+            updateCategoryButtons();
+            applyFilters();
+        })();
+    </script>
+</body>
+</html>
