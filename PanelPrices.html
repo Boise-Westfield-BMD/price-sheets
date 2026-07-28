@@ -663,7 +663,7 @@
                     Please confirm current pricing with your Boise Cascade representative.
                 </div>
                 <div class="footer-meta">
-                    Generated July 28, 2026 at 3:9 PM<br>
+                    Generated July 28, 2026 at 3:21 PM<br>
                     Boise Cascade Building Materials Distribution · Westfield
                 </div>
             </footer>
@@ -681,9 +681,23 @@
             const cards = Array.from(document.querySelectorAll('.category-card'));
             const categoryButtons = Array.from(document.querySelectorAll('.category-link'));
             const desktopLayout = window.matchMedia('(min-width: 1181px)');
-            const columnGap = 22;
+
+            // Customer-facing category order. Related sheathing categories stay
+            // together, while the two desktop columns remain visually balanced.
+            const preferredLeftOrder = [
+                'sheathing',
+                'sheathing-str-1',
+                'hardwood',
+            ];
+            const preferredRightOrder = [
+                'sanded',
+                'firul',
+                'specialty',
+                'siding',
+            ];
+
             let activeCategory = 'all';
-            let balanceFrame = null;
+            let arrangeFrame = null;
             let resizeTimer = null;
 
             function updateCategoryButtons() {
@@ -694,16 +708,17 @@
                 });
             }
 
-            function balanceVisibleCards() {
-                if (balanceFrame !== null) {
-                    cancelAnimationFrame(balanceFrame);
+            function arrangeCategoryCards() {
+                if (arrangeFrame !== null) {
+                    cancelAnimationFrame(arrangeFrame);
                 }
 
-                balanceFrame = requestAnimationFrame(() => {
-                    balanceFrame = null;
+                arrangeFrame = requestAnimationFrame(() => {
+                    arrangeFrame = null;
 
-                    // Restore original workbook order before measuring. This also
-                    // gives every card the exact width of one desktop column.
+                    // Restore workbook order before applying the customer-facing
+                    // desktop arrangement. This is also the one-column order used
+                    // on tablets, phones, single-category views, and printing.
                     cards.forEach(card => leftColumn.appendChild(card));
                     rightColumn.replaceChildren();
 
@@ -719,36 +734,38 @@
                     reportGrid.classList.toggle('single-category', !useTwoColumns);
                     if (!useTwoColumns) return;
 
-                    const measuredCards = visibleCards
-                        .map((card, originalIndex) => ({
-                            card,
-                            originalIndex,
-                            height: card.getBoundingClientRect().height,
-                        }))
-                        .sort((first, second) => (
-                            second.height - first.height ||
-                            first.originalIndex - second.originalIndex
-                        ));
+                    const visibleById = new Map(
+                        visibleCards.map(card => [card.id, card])
+                    );
+                    const assignedIds = new Set();
 
-                    let leftHeight = 0;
-                    let rightHeight = 0;
-
-                    measuredCards.forEach((entry, index) => {
-                        // Alternate exact ties so equally sized cards do not all
-                        // accumulate in the same column.
-                        const placeLeft = (
-                            leftHeight < rightHeight ||
-                            (leftHeight === rightHeight && index % 2 === 0)
-                        );
-                        const targetColumn = placeLeft ? leftColumn : rightColumn;
-                        targetColumn.appendChild(entry.card);
-
-                        if (placeLeft) {
-                            leftHeight += entry.height + columnGap;
-                        } else {
-                            rightHeight += entry.height + columnGap;
+                    preferredLeftOrder.forEach(categoryId => {
+                        const card = visibleById.get(categoryId);
+                        if (card) {
+                            leftColumn.appendChild(card);
+                            assignedIds.add(categoryId);
                         }
                     });
+
+                    preferredRightOrder.forEach(categoryId => {
+                        const card = visibleById.get(categoryId);
+                        if (card) {
+                            rightColumn.appendChild(card);
+                            assignedIds.add(categoryId);
+                        }
+                    });
+
+                    // Any future category not listed above is still supported.
+                    // Add it to whichever column is shorter at that moment.
+                    visibleCards
+                        .filter(card => !assignedIds.has(card.id))
+                        .forEach(card => {
+                            const targetColumn = (
+                                leftColumn.getBoundingClientRect().height <=
+                                rightColumn.getBoundingClientRect().height
+                            ) ? leftColumn : rightColumn;
+                            targetColumn.appendChild(card);
+                        });
                 });
             }
 
@@ -788,7 +805,7 @@
                 });
 
                 emptyState.style.display = visibleProducts ? 'none' : 'block';
-                balanceVisibleCards();
+                arrangeCategoryCards();
             }
 
             categoryButtons.forEach(button => {
@@ -813,7 +830,7 @@
 
             window.addEventListener('resize', () => {
                 window.clearTimeout(resizeTimer);
-                resizeTimer = window.setTimeout(balanceVisibleCards, 120);
+                resizeTimer = window.setTimeout(arrangeCategoryCards, 120);
             });
 
             window.addEventListener('beforeprint', () => {
@@ -822,7 +839,7 @@
                 reportGrid.classList.add('single-category');
             });
 
-            window.addEventListener('afterprint', balanceVisibleCards);
+            window.addEventListener('afterprint', arrangeCategoryCards);
 
             updateCategoryButtons();
             applyFilters();
