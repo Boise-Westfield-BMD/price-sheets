@@ -1,0 +1,25 @@
+{
+  "id": "./PanelPrices.html",
+  "name": "Boise Cascade Westfield Panel Prices",
+  "short_name": "Panel Prices",
+  "description": "Boise Cascade Westfield stock panel price list.",
+  "start_url": "./PanelPrices.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1E5732",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
