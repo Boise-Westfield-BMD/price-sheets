@@ -224,12 +224,12 @@
         .eyebrow { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; opacity: .72; text-transform: uppercase; }
         .item-count { white-space: nowrap; font-size: 11px; font-weight: 800; opacity: .82; }
 
-        .table-wrap { overflow-x: auto; }
-        table { width: 100%; min-width: 720px; border-collapse: collapse; table-layout: fixed; }
+        .table-wrap { overflow-x: hidden; }
+        table { width: 100%; min-width: 0; border-collapse: collapse; table-layout: fixed; }
         .col-item { width: 11%; }
         .col-size { width: 12%; }
-        .col-unit-size { width: 10%; }
-        .col-description { width: 31%; }
+        .col-unit-size { width: 6%; }
+        .col-description { width: 35%; }
         .col-price { width: 12%; }
         thead { display: table-header-group; }
         th {
@@ -244,6 +244,13 @@
             text-transform: uppercase;
         }
         th:nth-child(n+5) { text-align: right; }
+        .unit-qty-heading {
+            padding-left: 3px;
+            padding-right: 3px;
+            text-align: center;
+            line-height: 1.05;
+            white-space: normal;
+        }
         td { padding: 9px; border-bottom: 1px solid #e8eee9; vertical-align: top; font-size: 12px; }
         .product-row:nth-of-type(even) td { background: #fbfdfb; }
         .product-row:hover td { background: #eff7f1; }
@@ -261,7 +268,15 @@
         .type-row span { display: inline-block; padding-left: 8px; border-left: 4px solid #88988d; }
         .sku-col { color: #56625a; font-family: Consolas, "Courier New", monospace; font-size: 11px; font-weight: 800; }
         .size-col { white-space: nowrap; font-weight: 650; }
-        .unit-size-col { white-space: nowrap; font-weight: 650; color: #46534b; }
+        .unit-size-col {
+            padding-left: 3px;
+            padding-right: 3px;
+            text-align: center;
+            white-space: nowrap;
+            font-weight: 700;
+            color: #46534b;
+            font-variant-numeric: tabular-nums;
+        }
         .description-col { color: #273129; }
         .price-col { text-align: right; white-space: nowrap; font-size: 13px; font-weight: 900; font-variant-numeric: tabular-nums; }
         .broken-unit { display: block; margin-top: 3px; color: #a24b0f; font-size: 10px; font-weight: 800; }
@@ -302,6 +317,8 @@
             .button { flex: 1; }
             .footer { grid-template-columns: 1fr; padding: 15px 20px; }
             .footer-meta { text-align: left; white-space: normal; }
+            .table-wrap { overflow-x: auto; }
+            table { min-width: 680px; }
         }
         @media (max-width: 520px) {
             .brand-row { align-items: flex-start; flex-direction: column; }
@@ -403,7 +420,7 @@
                             <tr>
                                 <th>Item #</th>
                                 <th>Size</th>
-                                <th>Unit Qty</th>
+                                <th class="unit-qty-heading">Unit<br>Qty</th>
                                 <th>Description</th>
                                 <th>1 unit</th>
                                 <th>4+ units</th>
@@ -438,7 +455,7 @@
                             <tr>
                                 <th>Item #</th>
                                 <th>Size</th>
-                                <th>Unit Qty</th>
+                                <th class="unit-qty-heading">Unit<br>Qty</th>
                                 <th>Description</th>
                                 <th>1 unit</th>
                                 <th>4+ units</th>
@@ -473,7 +490,7 @@
                             <tr>
                                 <th>Item #</th>
                                 <th>Size</th>
-                                <th>Unit Qty</th>
+                                <th class="unit-qty-heading">Unit<br>Qty</th>
                                 <th>Description</th>
                                 <th>1 unit</th>
                                 <th>4+ units</th>
@@ -508,7 +525,7 @@
                             <tr>
                                 <th>Item #</th>
                                 <th>Size</th>
-                                <th>Unit Qty</th>
+                                <th class="unit-qty-heading">Unit<br>Qty</th>
                                 <th>Description</th>
                                 <th>1 unit</th>
                                 <th>4+ units</th>
@@ -543,7 +560,7 @@
                             <tr>
                                 <th>Item #</th>
                                 <th>Size</th>
-                                <th>Unit Qty</th>
+                                <th class="unit-qty-heading">Unit<br>Qty</th>
                                 <th>Description</th>
                                 <th>1 unit</th>
                                 <th>4+ units</th>
@@ -578,7 +595,7 @@
                             <tr>
                                 <th>Item #</th>
                                 <th>Size</th>
-                                <th>Unit Qty</th>
+                                <th class="unit-qty-heading">Unit<br>Qty</th>
                                 <th>Description</th>
                                 <th>1 unit</th>
                                 <th>4+ units</th>
@@ -613,7 +630,7 @@
                             <tr>
                                 <th>Item #</th>
                                 <th>Size</th>
-                                <th>Unit Qty</th>
+                                <th class="unit-qty-heading">Unit<br>Qty</th>
                                 <th>Description</th>
                                 <th>1 unit</th>
                                 <th>4+ units</th>
@@ -634,7 +651,7 @@
                     Please confirm current pricing with your Boise Cascade representative.
                 </div>
                 <div class="footer-meta">
-                    Generated July 28, 2026 at 2:24 PM<br>
+                    Generated July 28, 2026 at 2:36 PM<br>
                     Boise Cascade Building Materials Distribution · Westfield
                 </div>
             </footer>
