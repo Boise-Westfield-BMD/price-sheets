@@ -186,22 +186,29 @@
         }
 
         /*
-         * Balanced masonry-style category layout.
-         * CSS columns allow every category to stack directly beneath the
-         * previous card instead of sharing a fixed grid-row height.
+         * Two true category columns.
+         * JavaScript measures each visible card and places it into the
+         * currently shorter column so both sides finish at similar heights.
          */
         .report-grid {
-            display: block;
-            column-count: 2;
-            column-gap: 22px;
-            column-fill: balance;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+            align-items: start;
         }
-        .report-grid.single-category { column-count: 1; }
+        .report-grid.single-category { grid-template-columns: minmax(0, 1fr); }
+        .report-column {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            gap: 22px;
+        }
+        .report-grid.single-category .report-column-right { display: none; }
         .category-card {
-            display: inline-block;
+            display: block;
             width: 100%;
             min-width: 0;
-            margin: 0 0 22px;
+            margin: 0;
             border: 1px solid var(--line);
             border-radius: 13px;
             background: #fff;
@@ -209,7 +216,6 @@
             box-shadow: 0 4px 16px rgba(30, 87, 50, .055);
             break-inside: avoid;
             page-break-inside: avoid;
-            vertical-align: top;
         }
         .category-heading {
             display: flex;
@@ -302,7 +308,8 @@
         .footer-meta { text-align: right; white-space: nowrap; }
 
         @media (max-width: 1180px) {
-            .report-grid { column-count: 1; }
+            .report-grid { grid-template-columns: minmax(0, 1fr); }
+            .report-column-right { display: none; }
         }
         @media (max-width: 820px) {
             .page-shell { padding: 0; }
@@ -334,7 +341,9 @@
             .masthead { padding: 14px 16px; }
             .content { padding: 14px 10px; }
             .notice { margin-bottom: 12px; padding: 9px 11px; }
-            .report-grid { display: block; column-count: 1; }
+            .report-grid { display: block; }
+            .report-column { display: block; }
+            .report-column-right { display: block; }
             .category-card {
                 display: block;
                 width: 100%;
@@ -397,6 +406,7 @@
 
                 <nav class="category-nav" aria-label="Product categories"><button class="category-link active" type="button" data-category="all" aria-pressed="true">Show All</button><button class="category-link" type="button" data-category="sheathing" aria-pressed="false">SHEATHING</button><button class="category-link" type="button" data-category="sheathing-str-1" aria-pressed="false">SHEATHING STR 1</button><button class="category-link" type="button" data-category="firul" aria-pressed="false">FIRUL</button><button class="category-link" type="button" data-category="sanded" aria-pressed="false">SANDED</button><button class="category-link" type="button" data-category="siding" aria-pressed="false">SIDING</button><button class="category-link" type="button" data-category="specialty" aria-pressed="false">SPECIALTY</button><button class="category-link" type="button" data-category="hardwood" aria-pressed="false">HARDWOOD</button></nav>
                 <div id="reportGrid" class="report-grid">
+                    <div id="reportColumnLeft" class="report-column report-column-left">
             <section class="category-card" id="sheathing">
                 <div class="category-heading">
                     <div>
@@ -642,6 +652,8 @@
                 </div>
             </section>
             </div>
+                    <div id="reportColumnRight" class="report-column report-column-right"></div>
+                </div>
                 <div id="emptyState" class="empty-state">No products match that search.</div>
             </div>
 
@@ -651,7 +663,7 @@
                     Please confirm current pricing with your Boise Cascade representative.
                 </div>
                 <div class="footer-meta">
-                    Generated July 28, 2026 at 2:36 PM<br>
+                    Generated July 28, 2026 at 3:9 PM<br>
                     Boise Cascade Building Materials Distribution · Westfield
                 </div>
             </footer>
@@ -664,9 +676,15 @@
             const clear = document.getElementById('clearSearch');
             const emptyState = document.getElementById('emptyState');
             const reportGrid = document.getElementById('reportGrid');
+            const leftColumn = document.getElementById('reportColumnLeft');
+            const rightColumn = document.getElementById('reportColumnRight');
             const cards = Array.from(document.querySelectorAll('.category-card'));
             const categoryButtons = Array.from(document.querySelectorAll('.category-link'));
+            const desktopLayout = window.matchMedia('(min-width: 1181px)');
+            const columnGap = 22;
             let activeCategory = 'all';
+            let balanceFrame = null;
+            let resizeTimer = null;
 
             function updateCategoryButtons() {
                 categoryButtons.forEach(button => {
@@ -674,7 +692,64 @@
                     button.classList.toggle('active', isActive);
                     button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
                 });
-                reportGrid.classList.toggle('single-category', activeCategory !== 'all');
+            }
+
+            function balanceVisibleCards() {
+                if (balanceFrame !== null) {
+                    cancelAnimationFrame(balanceFrame);
+                }
+
+                balanceFrame = requestAnimationFrame(() => {
+                    balanceFrame = null;
+
+                    // Restore original workbook order before measuring. This also
+                    // gives every card the exact width of one desktop column.
+                    cards.forEach(card => leftColumn.appendChild(card));
+                    rightColumn.replaceChildren();
+
+                    const visibleCards = cards.filter(
+                        card => !card.classList.contains('hidden')
+                    );
+                    const useTwoColumns = (
+                        desktopLayout.matches &&
+                        activeCategory === 'all' &&
+                        visibleCards.length > 1
+                    );
+
+                    reportGrid.classList.toggle('single-category', !useTwoColumns);
+                    if (!useTwoColumns) return;
+
+                    const measuredCards = visibleCards
+                        .map((card, originalIndex) => ({
+                            card,
+                            originalIndex,
+                            height: card.getBoundingClientRect().height,
+                        }))
+                        .sort((first, second) => (
+                            second.height - first.height ||
+                            first.originalIndex - second.originalIndex
+                        ));
+
+                    let leftHeight = 0;
+                    let rightHeight = 0;
+
+                    measuredCards.forEach((entry, index) => {
+                        // Alternate exact ties so equally sized cards do not all
+                        // accumulate in the same column.
+                        const placeLeft = (
+                            leftHeight < rightHeight ||
+                            (leftHeight === rightHeight && index % 2 === 0)
+                        );
+                        const targetColumn = placeLeft ? leftColumn : rightColumn;
+                        targetColumn.appendChild(entry.card);
+
+                        if (placeLeft) {
+                            leftHeight += entry.height + columnGap;
+                        } else {
+                            rightHeight += entry.height + columnGap;
+                        }
+                    });
+                });
             }
 
             function applyFilters() {
@@ -713,6 +788,7 @@
                 });
 
                 emptyState.style.display = visibleProducts ? 'none' : 'block';
+                balanceVisibleCards();
             }
 
             categoryButtons.forEach(button => {
@@ -734,6 +810,19 @@
                 applyFilters();
                 search.focus();
             });
+
+            window.addEventListener('resize', () => {
+                window.clearTimeout(resizeTimer);
+                resizeTimer = window.setTimeout(balanceVisibleCards, 120);
+            });
+
+            window.addEventListener('beforeprint', () => {
+                cards.forEach(card => leftColumn.appendChild(card));
+                rightColumn.replaceChildren();
+                reportGrid.classList.add('single-category');
+            });
+
+            window.addEventListener('afterprint', balanceVisibleCards);
 
             updateCategoryButtons();
             applyFilters();
