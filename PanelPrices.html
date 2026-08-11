@@ -316,12 +316,19 @@
         body:not(.will-call-active) .will-call-only { display: none !important; }
         body.will-call-active .delivered-only { display: none !important; }
         
+        /* Expand the remaining columns to fill the 100% width */
+        body.will-call-active .col-description { width: 41%; }
+        body.will-call-active .col-price.will-call-only { width: 15%; }
+        
         .will-call-banner {
             background-color: #e4b63d;
             color: #17201a;
-            padding: 18px 28px;
+            padding: 16px 24px;
             text-align: center;
-            border-bottom: 3px solid #6f5310;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid #c99c2a;
+            box-shadow: 0 6px 16px rgba(228, 182, 61, 0.15);
         }
         .will-call-banner h2 { margin: 0 0 4px 0; font-size: 24px; font-weight: 900; letter-spacing: 1px; }
         .will-call-banner p { margin: 0; font-size: 14px; font-weight: 600; }
@@ -398,11 +405,6 @@
     </style>
 </head>
 <body>
-    <div id="willCallBanner" class="will-call-banner will-call-only">
-        <h2>WILL CALL PRICING</h2>
-        <p>All less-than-truckload pickup orders are billed at the standard delivered Truckload rate. For full truckload pickups, the freight allowance has been deducted below.</p>
-    </div>
-
     <div class="page-shell">
         <main class="report">
             <header class="masthead">
@@ -444,6 +446,12 @@
                 </div>
 
                 <nav class="category-nav" aria-label="Product categories"><button class="category-link active" type="button" data-category="all" aria-pressed="true">Show All</button><button class="category-link" type="button" data-category="sheathing" aria-pressed="false">SHEATHING</button><button class="category-link" type="button" data-category="sheathing-str-1" aria-pressed="false">SHEATHING STR 1</button><button class="category-link" type="button" data-category="firul" aria-pressed="false">FIRUL</button><button class="category-link" type="button" data-category="sanded" aria-pressed="false">SANDED</button><button class="category-link" type="button" data-category="siding" aria-pressed="false">SIDING</button><button class="category-link" type="button" data-category="specialty" aria-pressed="false">SPECIALTY</button><button class="category-link" type="button" data-category="hardwood" aria-pressed="false">HARDWOOD</button></nav>
+
+                <div id="willCallBanner" class="will-call-banner will-call-only">
+                    <h2>WILL CALL PRICING</h2>
+                    <p>All less-than-truckload pickup orders are billed at the standard delivered Truckload rate. For full truckload pickups, the freight allowance has been deducted below.</p>
+                </div>
+
                 <div id="reportGrid" class="report-grid">
                     <div id="reportColumnLeft" class="report-column report-column-left">
             <section class="category-card" id="sheathing">
@@ -730,7 +738,7 @@
                     Please confirm current pricing with your Boise Cascade representative.
                 </div>
                 <div class="footer-meta">
-                    Generated August 11, 2026 at 1:26 PM<br>
+                    Generated August 11, 2026 at 1:49 PM<br>
                     Boise Cascade Building Materials Distribution · Westfield
                 </div>
             </footer>
