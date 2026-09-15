@@ -1010,7 +1010,7 @@
                     Please confirm current pricing with your Boise Cascade representative.
                 </div>
                 <div class="footer-meta">
-                    Generated September 15, 2026 at 11:4 AM<br>
+                    Generated September 15, 2026 at 11:12 AM<br>
                     Boise Cascade Building Materials Distribution · Westfield
                 </div>
             </footer>
@@ -1321,7 +1321,7 @@
                 const endY = target.top + target.height / 2;
                 const middleX = (startX + endX) / 2;
                 const arcY = Math.min(startY, endY) - Math.min(90, Math.abs(startY - endY) * .12 + 35);
-                const duration = window.matchMedia('(max-width: 820px)').matches ? 420 : 560;
+                const duration = window.matchMedia('(max-width: 820px)').matches ? 700 : 850;
                 const graphic = document.createElement('div');
                 graphic.className = 'flight-panel-stack';
                 graphic.setAttribute('aria-hidden', 'true');
@@ -1329,10 +1329,11 @@
                 document.body.appendChild(graphic);
 
                 const animation = graphic.animate([
-                    { left: startX + 'px', top: startY + 'px', transform: 'translate(-50%, -50%) scale(.65)', opacity: 0 },
-                    { left: startX + 'px', top: startY + 'px', transform: 'translate(-50%, -50%) scale(.78)', opacity: 1, offset: .08 },
-                    { left: middleX + 'px', top: arcY + 'px', transform: 'translate(-50%, -50%) scale(1.02) rotate(-8deg)', opacity: 1, offset: .55 },
-                    { left: endX + 'px', top: endY + 'px', transform: 'translate(-50%, -50%) scale(.28) rotate(6deg)', opacity: .15 }
+                    { left: startX + 'px', top: startY + 'px', transform: 'translate(-50%, -50%) scale(.72)', opacity: 1 },
+                    { left: startX + 'px', top: startY + 'px', transform: 'translate(-50%, -50%) scale(.9)', opacity: 1, offset: .12 },
+                    { left: middleX + 'px', top: arcY + 'px', transform: 'translate(-50%, -50%) scale(1.05) rotate(-8deg)', opacity: 1, offset: .58 },
+                    { left: endX + 'px', top: endY + 'px', transform: 'translate(-50%, -50%) scale(.4) rotate(6deg)', opacity: .9, offset: .9 },
+                    { left: endX + 'px', top: endY + 'px', transform: 'translate(-50%, -50%) scale(.24) rotate(6deg)', opacity: 0 }
                 ], {
                     duration: duration,
                     easing: 'cubic-bezier(.22, .8, .3, 1)',
@@ -1745,8 +1746,17 @@
             copyCartButton.addEventListener('click', copyRequest);
             emailCartButton.addEventListener('click', emailRequest);
             clearCartButton.addEventListener('click', () => {
-                if (!cart.length || window.confirm('Clear every item from this load?')) {
+                if (!cart.length || window.confirm('Clear every item and all customer information from this quote?')) {
                     cart = [];
+                    requestCustomer.value = '';
+                    requestPO.value = '';
+                    requestShipTo.value = '';
+                    try {
+                        window.localStorage.removeItem(CART_STORAGE_KEY);
+                        window.localStorage.removeItem(CART_REQUEST_KEY);
+                    } catch (error) {
+                        // The visible quote is still cleared when browser storage is blocked.
+                    }
                     cartMessage.textContent = '';
                     renderCart();
                 }
