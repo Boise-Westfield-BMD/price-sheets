@@ -172,6 +172,73 @@
             cursor: pointer;
         }
         .button.secondary { background: #fff; color: var(--boise-green); }
+        .cart-trigger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transform-origin: center;
+        }
+        .cart-count {
+            min-width: 20px;
+            padding: 1px 6px;
+            border-radius: 999px;
+            color: var(--boise-green);
+            background: #fff;
+            font-size: 11px;
+            line-height: 18px;
+        }
+        .cart-trigger.cart-received { animation: cart-received .52s ease-out; }
+        .cart-count.cart-count-pop { animation: cart-count-pop .52s ease-out; }
+
+        @keyframes cart-received {
+            0% { transform: scale(1); box-shadow: none; }
+            42% { transform: scale(1.06); box-shadow: 0 0 0 7px rgba(43, 112, 68, .16); }
+            100% { transform: scale(1); box-shadow: none; }
+        }
+        @keyframes cart-count-pop {
+            0% { transform: scale(1); }
+            48% { transform: scale(1.42); }
+            100% { transform: scale(1); }
+        }
+
+        .flight-panel-stack {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 48px;
+            height: 34px;
+            z-index: 120;
+            pointer-events: none;
+            filter: drop-shadow(0 7px 8px rgba(19, 61, 34, .24));
+        }
+        .flight-panel-stack i {
+            position: absolute;
+            left: 4px;
+            width: 36px;
+            height: 17px;
+            border: 2px solid #1e5732;
+            border-radius: 3px;
+            background: linear-gradient(135deg, #fff9df, #d7bd72);
+        }
+        .flight-panel-stack i:nth-child(1) { top: 10px; left: 10px; opacity: .68; }
+        .flight-panel-stack i:nth-child(2) { top: 5px; left: 7px; opacity: .84; }
+        .flight-panel-stack i:nth-child(3) { top: 0; }
+        .flight-panel-stack b {
+            position: absolute;
+            right: -3px;
+            top: -8px;
+            display: grid;
+            width: 19px;
+            height: 19px;
+            place-items: center;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: #fff;
+            background: var(--boise-green-2);
+            font-size: 12px;
+            line-height: 1;
+        }
 
         .category-nav { display: flex; flex-wrap: wrap; gap: 8px; }
         .category-link {
@@ -264,8 +331,9 @@
         .col-item { width: 11%; }
         .col-size { width: 12%; }
         .col-unit-size { width: 6%; }
-        .col-description { width: 35%; }
-        .col-price { width: 12%; }
+        .col-description { width: 29%; }
+        .col-price { width: 11%; }
+        .col-action { width: 8%; }
         thead { display: table-header-group; }
         th {
             padding: 10px 9px;
@@ -314,6 +382,23 @@
         }
         .description-col { color: #273129; }
         .price-col { text-align: right; white-space: nowrap; font-size: 13px; font-weight: 900; font-variant-numeric: tabular-nums; }
+        .action-col { padding: 6px; text-align: center; vertical-align: middle; }
+        .action-heading { text-align: center !important; }
+        .add-cart-button {
+            min-width: 48px;
+            min-height: 36px;
+            padding: 6px 9px;
+            border: 1px solid var(--boise-green);
+            border-radius: 7px;
+            color: var(--boise-green);
+            background: #fff;
+            font: inherit;
+            font-size: 11px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+        .add-cart-button:hover { color: #fff; background: var(--boise-green); }
+        .add-cart-button.added { border-color: var(--boise-green-2); color: #fff; background: var(--boise-green-2); }
         .broken-unit { display: block; margin-top: 3px; color: #a24b0f; font-size: 10px; font-weight: 800; }
         .lead-blue { color: var(--blue); }
         .lead-red { color: var(--red); }
@@ -327,8 +412,141 @@
         body.will-call-active .delivered-only { display: none !important; }
         
         /* Expand the remaining columns to fill the 100% width */
-        body.will-call-active .col-description { width: 41%; }
-        body.will-call-active .col-price.will-call-only { width: 15%; }
+        body.will-call-active .col-description { width: 34%; }
+        body.will-call-active .col-price.will-call-only { width: 14%; }
+
+        .cart-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            display: none;
+            background: rgba(9, 24, 15, .48);
+        }
+        .cart-overlay.open { display: block; }
+        .cart-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            z-index: 90;
+            display: flex;
+            width: min(620px, 100vw);
+            height: 100vh;
+            flex-direction: column;
+            transform: translateX(102%);
+            transition: transform .2s ease;
+            background: #fff;
+            box-shadow: -12px 0 34px rgba(9, 24, 15, .22);
+        }
+        .cart-panel.open { transform: translateX(0); }
+        .cart-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 20px 22px 17px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--boise-green), var(--boise-green-2));
+        }
+        .cart-header h2 { margin: 0; font-size: 23px; }
+        .cart-header p { margin: 4px 0 0; color: rgba(255,255,255,.78); font-size: 12px; }
+        .cart-close {
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(255,255,255,.4);
+            border-radius: 8px;
+            color: #fff;
+            background: transparent;
+            font-size: 24px;
+            line-height: 30px;
+            cursor: pointer;
+        }
+        .cart-scroll { flex: 1; overflow-y: auto; padding: 18px 22px 28px; }
+        .cart-mode {
+            margin-bottom: 14px;
+            padding: 10px 12px;
+            border: 1px solid #cbd7cf;
+            border-radius: 9px;
+            color: var(--boise-green);
+            background: var(--boise-green-soft);
+            font-size: 12px;
+            font-weight: 900;
+        }
+        .cart-empty { padding: 28px 12px; color: var(--muted); text-align: center; }
+        .cart-items { display: grid; gap: 10px; }
+        .cart-item { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fbfdfb; }
+        .cart-item-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+        .cart-item-title { margin: 0; color: var(--ink); font-size: 13px; font-weight: 900; }
+        .cart-item-meta { margin-top: 3px; color: var(--muted); font-size: 11px; }
+        .cart-remove { border: 0; color: #9b2d22; background: transparent; font-weight: 800; cursor: pointer; }
+        .cart-item-controls {
+            display: grid;
+            grid-template-columns: 120px minmax(0, 1fr);
+            gap: 12px;
+            align-items: end;
+            margin-top: 10px;
+        }
+        .cart-item-controls label, .request-field label { display: block; margin-bottom: 4px; color: #4a574e; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+        .cart-qty, .request-field input {
+            width: 100%;
+            padding: 8px 9px;
+            border: 1px solid #cbd7cf;
+            border-radius: 7px;
+            color: var(--ink);
+            background: #fff;
+            font: inherit;
+        }
+        .cart-line-price { text-align: right; }
+        .cart-line-price strong { display: block; color: var(--boise-green); font-size: 17px; }
+        .cart-line-price span { color: var(--muted); font-size: 10px; }
+        .cart-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 9px;
+            margin-top: 15px;
+        }
+        .cart-stat { padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+        .cart-stat span { display: block; color: var(--muted); font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .cart-stat strong { display: block; margin-top: 2px; color: var(--ink); font-size: 16px; }
+        .cart-status { margin-top: 10px; padding: 11px 12px; border-radius: 9px; background: #eef5f0; color: #274a34; font-size: 12px; }
+        .cart-status.warning { background: #fff4d8; color: #715712; }
+        .cart-status.danger { background: #fde8e6; color: #7c211a; font-weight: 800; }
+        .overweight-warning {
+            display: grid;
+            grid-template-columns: 92px minmax(0, 1fr);
+            gap: 14px;
+            align-items: center;
+            margin-top: 12px;
+            padding: 14px;
+            border: 2px solid #b43127;
+            border-radius: 12px;
+            color: #721d17;
+            background: linear-gradient(135deg, #fff4f2, #fbdedb);
+            box-shadow: 0 7px 18px rgba(164, 45, 35, .13);
+        }
+        .overweight-truck {
+            display: grid;
+            min-height: 66px;
+            place-items: center;
+            border-radius: 9px;
+            background: #fff;
+        }
+        .overweight-truck svg { width: 78px; height: 52px; overflow: visible; }
+        .overweight-copy strong { display: block; font-size: 16px; letter-spacing: .35px; }
+        .overweight-copy span { display: block; margin-top: 4px; font-size: 12px; line-height: 1.4; }
+        .request-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+        .request-field.ship-to { grid-column: 1 / -1; }
+        .cart-disclaimer { margin: 13px 0; color: var(--muted); font-size: 11px; }
+        .cart-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+        .cart-actions .button { flex: 1 1 130px; }
+        .button.danger { border-color: #a54136; color: #a54136; background: #fff; }
+        .button:disabled {
+            border-color: #aeb7b0;
+            color: #fff;
+            background: #7d8780;
+            cursor: not-allowed;
+            opacity: .82;
+        }
+        .cart-message { min-height: 18px; margin-top: 8px; color: var(--boise-green); font-size: 11px; font-weight: 800; }
         
         .will-call-banner {
             background-color: #e4b63d;
@@ -372,16 +590,38 @@
             .legend { justify-content: flex-start; }
             .sticky-header { margin: 0 -18px 20px; padding: 12px 18px; }
             .toolbar { grid-template-columns: 1fr; }
-            .toolbar-actions { justify-content: stretch; }
-            .button { flex: 1; }
+            .toolbar-actions {
+                display: grid;
+                width: 100%;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+            }
+            .toolbar-actions .button { width: 100%; min-height: 44px; padding: 10px 8px; }
+            .toolbar-actions .cart-trigger { grid-column: 1 / -1; min-height: 48px; font-size: 14px; }
             .footer { grid-template-columns: 1fr; padding: 15px 20px; border-radius: 0; }
             .footer-meta { text-align: left; white-space: normal; }
             .table-wrap { overflow-x: auto; }
-            table { min-width: 680px; }
+            table { min-width: 720px; }
+            .add-cart-button { min-width: 64px; min-height: 44px; padding: 8px 10px; font-size: 12px; }
+            .cart-panel { width: 100vw; }
+            .request-fields { grid-template-columns: 1fr; }
+            .request-field.ship-to { grid-column: auto; }
         }
         @media (max-width: 520px) {
             .brand-row { align-items: flex-start; flex-direction: column; }
             .title-block { padding: 14px 0 0; border-left: 0; border-top: 1px solid var(--line); }
+            .overweight-warning { grid-template-columns: 70px minmax(0, 1fr); gap: 10px; padding: 11px; }
+            .overweight-truck svg { width: 64px; height: 46px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+            .flight-panel-stack { display: none !important; }
         }
 
         @media print {
@@ -390,6 +630,7 @@
             .page-shell { max-width: none; padding: 0; }
             .report { border: 0; border-radius: 0; box-shadow: none; }
             .sticky-header { display: none !important; }
+            .action-col, .action-heading, .cart-panel, .cart-overlay { display: none !important; }
             .masthead { padding: 14px 16px; border-radius: 0; }
             .content { padding: 14px 10px; }
             .notice { margin-bottom: 12px; padding: 9px 11px; }
@@ -452,6 +693,9 @@
                     <div class="toolbar">
                         <input id="productSearch" class="search-box" type="search" placeholder="Search item number, size, unit quantity, description, type, or category…" aria-label="Search products">
                         <div class="toolbar-actions">
+                            <button id="openCart" class="button cart-trigger" type="button" aria-haspopup="dialog" aria-controls="cartPanel">
+                                Build Load <span id="cartCount" class="cart-count" aria-live="polite">0</span>
+                            </button>
                             <button id="toggleWillCall" class="button secondary" type="button">Show Will Call</button>
                             <button id="clearSearch" class="button secondary" type="button">Clear Filters</button>
                             <button class="button" type="button" onclick="window.print()">Print / PDF</button>
@@ -488,6 +732,7 @@
                             <col class="col-price delivered-only">
                             <col class="col-price will-call-only">
                             <col class="col-price will-call-only">
+                            <col class="col-action">
                         </colgroup>
                         <thead>
                             <tr>
@@ -500,9 +745,10 @@
                                 <th class="delivered-only">Truckload</th>
                                 <th class="will-call-only">LTL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Standard TL Price)</span></th>
                                 <th class="will-call-only">Full TL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Deducts Allowance)</span></th>
+                                <th class="action-heading">Load</th>
                             </tr>
                         </thead>
-                        <tbody><tr class="type-row"><td colspan="9"><span>FIR</span></td></tr><tr class="product-row" data-search="sheathing fir 1100020 3/8 4x8 90 plywood cd western 24/0"><td class="sku-col">1100020</td><td class="size-col">3/8 4X8</td><td class="unit-size-col">90</td><td class="description-col">PLYWOOD CD WESTERN 24/0</td><td class="price-col delivered-only lead-standard">$753</td><td class="price-col delivered-only lead-standard">$721</td><td class="price-col delivered-only lead-standard">$696</td><td class="price-col will-call-only lead-standard">$696</td><td class="price-col will-call-only lead-standard">$679</td></tr><tr class="product-row" data-search="sheathing fir 1100019 1/2 4x8 70 plywood cd western 32/16 4 ply"><td class="sku-col">1100019</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">70</td><td class="description-col">PLYWOOD CD WESTERN 32/16 4 PLY</td><td class="price-col delivered-only lead-standard">$945</td><td class="price-col delivered-only lead-standard">$903</td><td class="price-col delivered-only lead-standard">$870</td><td class="price-col will-call-only lead-standard">$870</td><td class="price-col will-call-only lead-standard">$848</td></tr><tr class="product-row" data-search="sheathing fir 1102215 1/2 4x8 60 plywood ccx western 32/16 5 ply"><td class="sku-col">1102215</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">60</td><td class="description-col">PLYWOOD CCX WESTERN 32/16 5 PLY</td><td class="price-col delivered-only lead-standard">$1,055</td><td class="price-col delivered-only lead-standard">$1,013</td><td class="price-col delivered-only lead-standard">$980</td><td class="price-col will-call-only lead-standard">$980</td><td class="price-col will-call-only lead-standard">$958</td></tr><tr class="product-row" data-search="sheathing fir 1100036 5/8 4x8 55 plywood cd western 40/20 4 ply"><td class="sku-col">1100036</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">55</td><td class="description-col">PLYWOOD CD WESTERN 40/20 4 PLY</td><td class="price-col delivered-only lead-standard">$1,085</td><td class="price-col delivered-only lead-standard">$1,033</td><td class="price-col delivered-only lead-standard">$992</td><td class="price-col will-call-only lead-standard">$992</td><td class="price-col will-call-only lead-standard">$964</td></tr><tr class="product-row" data-search="sheathing fir 1100033 5/8 4x8 52 plywood cd western 40/20 5 ply"><td class="sku-col">1100033</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">52</td><td class="description-col">PLYWOOD CD WESTERN 40/20 5 PLY</td><td class="price-col delivered-only lead-standard">$1,120</td><td class="price-col delivered-only lead-standard">$1,068</td><td class="price-col delivered-only lead-standard">$1,027</td><td class="price-col will-call-only lead-standard">$1,027</td><td class="price-col will-call-only lead-standard">$999</td></tr><tr class="product-row" data-search="sheathing fir 1100074 3/4 4x8 46 plywood cd western 48/24 4 ply"><td class="sku-col">1100074</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">46</td><td class="description-col">PLYWOOD CD WESTERN 48/24 4 PLY</td><td class="price-col delivered-only lead-standard">$1,297</td><td class="price-col delivered-only lead-standard">$1,234</td><td class="price-col delivered-only lead-standard">$1,184</td><td class="price-col will-call-only lead-standard">$1,184</td><td class="price-col will-call-only lead-standard">$1,150</td></tr><tr class="product-row" data-search="sheathing fir 1100075 3/4 4x8 44 plywood cd western 48/24 5 ply"><td class="sku-col">1100075</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">PLYWOOD CD WESTERN 48/24 5 PLY</td><td class="price-col delivered-only lead-standard">$1,317</td><td class="price-col delivered-only lead-standard">$1,254</td><td class="price-col delivered-only lead-standard">$1,204</td><td class="price-col will-call-only lead-standard">$1,204</td><td class="price-col will-call-only lead-standard">$1,170</td></tr><tr class="type-row"><td colspan="9"><span>SYP</span></td></tr><tr class="product-row" data-search="sheathing syp 1107050 3/8 4x8 92 rtd sheathing syp 3ply"><td class="sku-col">1107050</td><td class="size-col">3/8 4X8</td><td class="unit-size-col">92</td><td class="description-col">RTD SHEATHING SYP 3PLY</td><td class="price-col delivered-only lead-standard">$658</td><td class="price-col delivered-only lead-standard">$626</td><td class="price-col delivered-only lead-standard">$601</td><td class="price-col will-call-only lead-standard">$601</td><td class="price-col will-call-only lead-standard">$582</td></tr><tr class="product-row" data-search="sheathing syp 1107104 1/2 4x8 70 rtd sheathing syp 4ply"><td class="sku-col">1107104</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">70</td><td class="description-col">RTD SHEATHING SYP 4PLY</td><td class="price-col delivered-only lead-standard">$800</td><td class="price-col delivered-only lead-standard">$758</td><td class="price-col delivered-only lead-standard">$725</td><td class="price-col will-call-only lead-standard">$725</td><td class="price-col will-call-only lead-standard">$701</td></tr><tr class="product-row" data-search="sheathing syp 1107209 5/8 4x8 53 rtd sheathing syp 4ply"><td class="sku-col">1107209</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">53</td><td class="description-col">RTD SHEATHING SYP 4PLY</td><td class="price-col delivered-only lead-standard">$927</td><td class="price-col delivered-only lead-standard">$875</td><td class="price-col delivered-only lead-standard">$834</td><td class="price-col will-call-only lead-standard">$834</td><td class="price-col will-call-only lead-standard">$802</td></tr><tr class="product-row" data-search="sheathing syp 1107300 3/4 4x8 44 rtd sheathing syp 5ply"><td class="sku-col">1107300</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">RTD SHEATHING SYP 5PLY</td><td class="price-col delivered-only lead-standard">$1,153</td><td class="price-col delivered-only lead-standard">$1,090</td><td class="price-col delivered-only lead-standard">$1,040</td><td class="price-col will-call-only lead-standard">$1,040</td><td class="price-col will-call-only lead-standard">$1,002</td></tr></tbody>
+                        <tbody><tr class="type-row"><td colspan="10"><span>FIR</span></td></tr><tr class="product-row" data-search="sheathing fir 1100020 3/8 4x8 90 plywood cd western 24/0" data-item="1100020" data-size="3/8 4X8" data-unit-size="90" data-description="PLYWOOD CD WESTERN 24/0" data-unit-weight="2730.24" data-price-unit="753.00" data-price-four="721.00" data-price-truck="696.00" data-price-will-call-ltl="696.00" data-price-will-call-full="679.00"><td class="sku-col">1100020</td><td class="size-col">3/8 4X8</td><td class="unit-size-col">90</td><td class="description-col">PLYWOOD CD WESTERN 24/0</td><td class="price-col delivered-only lead-standard">$753</td><td class="price-col delivered-only lead-standard">$721</td><td class="price-col delivered-only lead-standard">$696</td><td class="price-col will-call-only lead-standard">$696</td><td class="price-col will-call-only lead-standard">$679</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sheathing fir 1100019 1/2 4x8 70 plywood cd western 32/16 4 ply" data-item="1100019" data-size="1/2 4X8" data-unit-size="70" data-description="PLYWOOD CD WESTERN 32/16 4 PLY" data-unit-weight="2813.44" data-price-unit="945.00" data-price-four="903.00" data-price-truck="870.00" data-price-will-call-ltl="870.00" data-price-will-call-full="848.00"><td class="sku-col">1100019</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">70</td><td class="description-col">PLYWOOD CD WESTERN 32/16 4 PLY</td><td class="price-col delivered-only lead-standard">$945</td><td class="price-col delivered-only lead-standard">$903</td><td class="price-col delivered-only lead-standard">$870</td><td class="price-col will-call-only lead-standard">$870</td><td class="price-col will-call-only lead-standard">$848</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sheathing fir 1102215 1/2 4x8 60 plywood ccx western 32/16 5 ply" data-item="1102215" data-size="1/2 4X8" data-unit-size="60" data-description="PLYWOOD CCX WESTERN 32/16 5 PLY" data-unit-weight="2390.40" data-price-unit="1055.00" data-price-four="1013.00" data-price-truck="980.00" data-price-will-call-ltl="980.00" data-price-will-call-full="958.00"><td class="sku-col">1102215</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">60</td><td class="description-col">PLYWOOD CCX WESTERN 32/16 5 PLY</td><td class="price-col delivered-only lead-standard">$1,055</td><td class="price-col delivered-only lead-standard">$1,013</td><td class="price-col delivered-only lead-standard">$980</td><td class="price-col will-call-only lead-standard">$980</td><td class="price-col will-call-only lead-standard">$958</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sheathing fir 1100036 5/8 4x8 55 plywood cd western 40/20 4 ply" data-item="1100036" data-size="5/8 4X8" data-unit-size="55" data-description="PLYWOOD CD WESTERN 40/20 4 PLY" data-unit-weight="2803.68" data-price-unit="1085.00" data-price-four="1033.00" data-price-truck="992.00" data-price-will-call-ltl="992.00" data-price-will-call-full="964.00"><td class="sku-col">1100036</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">55</td><td class="description-col">PLYWOOD CD WESTERN 40/20 4 PLY</td><td class="price-col delivered-only lead-standard">$1,085</td><td class="price-col delivered-only lead-standard">$1,033</td><td class="price-col delivered-only lead-standard">$992</td><td class="price-col will-call-only lead-standard">$992</td><td class="price-col will-call-only lead-standard">$964</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sheathing fir 1100033 5/8 4x8 52 plywood cd western 40/20 5 ply" data-item="1100033" data-size="5/8 4X8" data-unit-size="52" data-description="PLYWOOD CD WESTERN 40/20 5 PLY" data-unit-weight="2650.75" data-price-unit="1120.00" data-price-four="1068.00" data-price-truck="1027.00" data-price-will-call-ltl="1027.00" data-price-will-call-full="999.00"><td class="sku-col">1100033</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">52</td><td class="description-col">PLYWOOD CD WESTERN 40/20 5 PLY</td><td class="price-col delivered-only lead-standard">$1,120</td><td class="price-col delivered-only lead-standard">$1,068</td><td class="price-col delivered-only lead-standard">$1,027</td><td class="price-col will-call-only lead-standard">$1,027</td><td class="price-col will-call-only lead-standard">$999</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sheathing fir 1100074 3/4 4x8 46 plywood cd western 48/24 4 ply" data-item="1100074" data-size="3/4 4X8" data-unit-size="46" data-description="PLYWOOD CD WESTERN 48/24 4 PLY" data-unit-weight="2752.64" data-price-unit="1297.00" data-price-four="1234.00" data-price-truck="1184.00" data-price-will-call-ltl="1184.00" data-price-will-call-full="1150.00"><td class="sku-col">1100074</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">46</td><td class="description-col">PLYWOOD CD WESTERN 48/24 4 PLY</td><td class="price-col delivered-only lead-standard">$1,297</td><td class="price-col delivered-only lead-standard">$1,234</td><td class="price-col delivered-only lead-standard">$1,184</td><td class="price-col will-call-only lead-standard">$1,184</td><td class="price-col will-call-only lead-standard">$1,150</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sheathing fir 1100075 3/4 4x8 44 plywood cd western 48/24 5 ply" data-item="1100075" data-size="3/4 4X8" data-unit-size="44" data-description="PLYWOOD CD WESTERN 48/24 5 PLY" data-unit-weight="2630.14" data-price-unit="1317.00" data-price-four="1254.00" data-price-truck="1204.00" data-price-will-call-ltl="1204.00" data-price-will-call-full="1170.00"><td class="sku-col">1100075</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">PLYWOOD CD WESTERN 48/24 5 PLY</td><td class="price-col delivered-only lead-standard">$1,317</td><td class="price-col delivered-only lead-standard">$1,254</td><td class="price-col delivered-only lead-standard">$1,204</td><td class="price-col will-call-only lead-standard">$1,204</td><td class="price-col will-call-only lead-standard">$1,170</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="type-row"><td colspan="10"><span>SYP</span></td></tr><tr class="product-row" data-search="sheathing syp 1107050 3/8 4x8 92 rtd sheathing syp 3ply" data-item="1107050" data-size="3/8 4X8" data-unit-size="92" data-description="RTD SHEATHING SYP 3PLY" data-unit-weight="3194.24" data-price-unit="658.00" data-price-four="626.00" data-price-truck="601.00" data-price-will-call-ltl="601.00" data-price-will-call-full="582.00"><td class="sku-col">1107050</td><td class="size-col">3/8 4X8</td><td class="unit-size-col">92</td><td class="description-col">RTD SHEATHING SYP 3PLY</td><td class="price-col delivered-only lead-standard">$658</td><td class="price-col delivered-only lead-standard">$626</td><td class="price-col delivered-only lead-standard">$601</td><td class="price-col will-call-only lead-standard">$601</td><td class="price-col will-call-only lead-standard">$582</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sheathing syp 1107104 1/2 4x8 70 rtd sheathing syp 4ply" data-item="1107104" data-size="1/2 4X8" data-unit-size="70" data-description="RTD SHEATHING SYP 4PLY" data-unit-weight="3001.60" data-price-unit="800.00" data-price-four="758.00" data-price-truck="725.00" data-price-will-call-ltl="725.00" data-price-will-call-full="701.00"><td class="sku-col">1107104</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">70</td><td class="description-col">RTD SHEATHING SYP 4PLY</td><td class="price-col delivered-only lead-standard">$800</td><td class="price-col delivered-only lead-standard">$758</td><td class="price-col delivered-only lead-standard">$725</td><td class="price-col will-call-only lead-standard">$725</td><td class="price-col will-call-only lead-standard">$701</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sheathing syp 1107209 5/8 4x8 53 rtd sheathing syp 4ply" data-item="1107209" data-size="5/8 4X8" data-unit-size="53" data-description="RTD SHEATHING SYP 4PLY" data-unit-weight="2959.52" data-price-unit="927.00" data-price-four="875.00" data-price-truck="834.00" data-price-will-call-ltl="834.00" data-price-will-call-full="802.00"><td class="sku-col">1107209</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">53</td><td class="description-col">RTD SHEATHING SYP 4PLY</td><td class="price-col delivered-only lead-standard">$927</td><td class="price-col delivered-only lead-standard">$875</td><td class="price-col delivered-only lead-standard">$834</td><td class="price-col will-call-only lead-standard">$834</td><td class="price-col will-call-only lead-standard">$802</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sheathing syp 1107300 3/4 4x8 44 rtd sheathing syp 5ply" data-item="1107300" data-size="3/4 4X8" data-unit-size="44" data-description="RTD SHEATHING SYP 5PLY" data-unit-weight="2969.47" data-price-unit="1153.00" data-price-four="1090.00" data-price-truck="1040.00" data-price-will-call-ltl="1040.00" data-price-will-call-full="1002.00"><td class="sku-col">1107300</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">RTD SHEATHING SYP 5PLY</td><td class="price-col delivered-only lead-standard">$1,153</td><td class="price-col delivered-only lead-standard">$1,090</td><td class="price-col delivered-only lead-standard">$1,040</td><td class="price-col will-call-only lead-standard">$1,040</td><td class="price-col will-call-only lead-standard">$1,002</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr></tbody>
                     </table>
                 </div>
             </section>
@@ -527,6 +773,7 @@
                             <col class="col-price delivered-only">
                             <col class="col-price will-call-only">
                             <col class="col-price will-call-only">
+                            <col class="col-action">
                         </colgroup>
                         <thead>
                             <tr>
@@ -539,9 +786,10 @@
                                 <th class="delivered-only">Truckload</th>
                                 <th class="will-call-only">LTL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Standard TL Price)</span></th>
                                 <th class="will-call-only">Full TL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Deducts Allowance)</span></th>
+                                <th class="action-heading">Load</th>
                             </tr>
                         </thead>
-                        <tbody><tr class="type-row"><td colspan="9"><span>FIR</span></td></tr><tr class="product-row" data-search="sheathing str 1 fir 1100338 1/2 4x8 70 plywood cd western 4ply str1"><td class="sku-col">1100338</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">70</td><td class="description-col">PLYWOOD CD WESTERN 4PLY STR1</td><td class="price-col delivered-only lead-green">$970</td><td class="price-col delivered-only lead-green">$928</td><td class="price-col delivered-only lead-green">$895</td><td class="price-col will-call-only lead-green">$895</td><td class="price-col will-call-only lead-green">$873</td></tr><tr class="product-row" data-search="sheathing str 1 fir 1101119 5/8 4x8 52 plywood cd western 5ply str1"><td class="sku-col">1101119</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">52</td><td class="description-col">PLYWOOD CD WESTERN 5PLY STR1</td><td class="price-col delivered-only lead-green">$1,150</td><td class="price-col delivered-only lead-green">$1,098</td><td class="price-col delivered-only lead-green">$1,057</td><td class="price-col will-call-only lead-green">$1,057</td><td class="price-col will-call-only lead-green">$1,029</td></tr><tr class="product-row" data-search="sheathing str 1 fir 1100140 3/4 4x8 44 plywood cd western 5ply str1"><td class="sku-col">1100140</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">PLYWOOD CD WESTERN 5PLY STR1</td><td class="price-col delivered-only lead-standard">$1,357</td><td class="price-col delivered-only lead-standard">$1,294</td><td class="price-col delivered-only lead-standard">$1,244</td><td class="price-col will-call-only lead-standard">$1,244</td><td class="price-col will-call-only lead-standard">$1,210</td></tr></tbody>
+                        <tbody><tr class="type-row"><td colspan="10"><span>FIR</span></td></tr><tr class="product-row" data-search="sheathing str 1 fir 1100338 1/2 4x8 70 plywood cd western 4ply str1" data-item="1100338" data-size="1/2 4X8" data-unit-size="70" data-description="PLYWOOD CD WESTERN 4PLY STR1" data-unit-weight="2632.00" data-price-unit="970.00" data-price-four="928.00" data-price-truck="895.00" data-price-will-call-ltl="895.00" data-price-will-call-full="873.00"><td class="sku-col">1100338</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">70</td><td class="description-col">PLYWOOD CD WESTERN 4PLY STR1</td><td class="price-col delivered-only lead-green">$970</td><td class="price-col delivered-only lead-green">$928</td><td class="price-col delivered-only lead-green">$895</td><td class="price-col will-call-only lead-green">$895</td><td class="price-col will-call-only lead-green">$873</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sheathing str 1 fir 1101119 5/8 4x8 52 plywood cd western 5ply str1" data-item="1101119" data-size="5/8 4X8" data-unit-size="52" data-description="PLYWOOD CD WESTERN 5PLY STR1" data-unit-weight="2662.40" data-price-unit="1150.00" data-price-four="1098.00" data-price-truck="1057.00" data-price-will-call-ltl="1057.00" data-price-will-call-full="1029.00"><td class="sku-col">1101119</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">52</td><td class="description-col">PLYWOOD CD WESTERN 5PLY STR1</td><td class="price-col delivered-only lead-green">$1,150</td><td class="price-col delivered-only lead-green">$1,098</td><td class="price-col delivered-only lead-green">$1,057</td><td class="price-col will-call-only lead-green">$1,057</td><td class="price-col will-call-only lead-green">$1,029</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sheathing str 1 fir 1100140 3/4 4x8 44 plywood cd western 5ply str1" data-item="1100140" data-size="3/4 4X8" data-unit-size="44" data-description="PLYWOOD CD WESTERN 5PLY STR1" data-unit-weight="2632.96" data-price-unit="1357.00" data-price-four="1294.00" data-price-truck="1244.00" data-price-will-call-ltl="1244.00" data-price-will-call-full="1210.00"><td class="sku-col">1100140</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">PLYWOOD CD WESTERN 5PLY STR1</td><td class="price-col delivered-only lead-standard">$1,357</td><td class="price-col delivered-only lead-standard">$1,294</td><td class="price-col delivered-only lead-standard">$1,244</td><td class="price-col will-call-only lead-standard">$1,244</td><td class="price-col will-call-only lead-standard">$1,210</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr></tbody>
                     </table>
                 </div>
             </section>
@@ -566,6 +814,7 @@
                             <col class="col-price delivered-only">
                             <col class="col-price will-call-only">
                             <col class="col-price will-call-only">
+                            <col class="col-action">
                         </colgroup>
                         <thead>
                             <tr>
@@ -578,9 +827,10 @@
                                 <th class="delivered-only">Truckload</th>
                                 <th class="will-call-only">LTL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Standard TL Price)</span></th>
                                 <th class="will-call-only">Full TL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Deducts Allowance)</span></th>
+                                <th class="action-heading">Load</th>
                             </tr>
                         </thead>
-                        <tbody><tr class="type-row"><td colspan="9"><span>SEUL</span></td></tr><tr class="product-row" data-search="firul seul 1103028 3/8 4x8 90 ul se bxband fir plywood"><td class="sku-col">1103028</td><td class="size-col">3/8 4X8</td><td class="unit-size-col">90</td><td class="description-col">UL SE BXBAND FIR PLYWOOD</td><td class="price-col delivered-only lead-standard">$1,079</td><td class="price-col delivered-only lead-standard">$1,047</td><td class="price-col delivered-only lead-standard">$1,022</td><td class="price-col will-call-only lead-standard">$1,022</td><td class="price-col will-call-only lead-standard">$1,005</td></tr><tr class="product-row" data-search="firul seul 1103022 1/2 4x8 66 ul se bxband fir plywood"><td class="sku-col">1103022</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">66</td><td class="description-col">UL SE BXBAND FIR PLYWOOD</td><td class="price-col delivered-only lead-standard">$1,253</td><td class="price-col delivered-only lead-standard">$1,211</td><td class="price-col delivered-only lead-standard">$1,178</td><td class="price-col will-call-only lead-standard">$1,178</td><td class="price-col will-call-only lead-standard">$1,156</td></tr><tr class="product-row" data-search="firul seul 1103026 5/8 4x8 53 ul se bxband fir plywood"><td class="sku-col">1103026</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">53</td><td class="description-col">UL SE BXBAND FIR PLYWOOD</td><td class="price-col delivered-only lead-standard">$1,378</td><td class="price-col delivered-only lead-standard">$1,326</td><td class="price-col delivered-only lead-standard">$1,285</td><td class="price-col will-call-only lead-standard">$1,285</td><td class="price-col will-call-only lead-standard">$1,257</td></tr><tr class="product-row" data-search="firul seul 1103024 3/4 4x8 44 ul se bxband fir plywood"><td class="sku-col">1103024</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">UL SE BXBAND FIR PLYWOOD</td><td class="price-col delivered-only lead-standard">$1,484</td><td class="price-col delivered-only lead-standard">$1,421</td><td class="price-col delivered-only lead-standard">$1,371</td><td class="price-col will-call-only lead-standard">$1,371</td><td class="price-col will-call-only lead-standard">$1,337</td></tr><tr class="type-row"><td colspan="9"><span>TGUL</span></td></tr><tr class="product-row" data-search="firul tgul 1103300 3/4 4x8 44 ply/fir sturdi 24&quot;oc t&amp;g scant western"><td class="sku-col">1103300</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">PLY/FIR STURDI 24&quot;OC T&amp;G SCANT WESTERN</td><td class="price-col delivered-only lead-standard">$1,387</td><td class="price-col delivered-only lead-standard">$1,324</td><td class="price-col delivered-only lead-standard">$1,274</td><td class="price-col will-call-only lead-standard">$1,274</td><td class="price-col will-call-only lead-standard">$1,240</td></tr></tbody>
+                        <tbody><tr class="type-row"><td colspan="10"><span>SEUL</span></td></tr><tr class="product-row" data-search="firul seul 1103028 3/8 4x8 90 ul se bxband fir plywood" data-item="1103028" data-size="3/8 4X8" data-unit-size="90" data-description="UL SE BXBAND FIR PLYWOOD" data-unit-weight="2736.00" data-price-unit="1079.00" data-price-four="1047.00" data-price-truck="1022.00" data-price-will-call-ltl="1022.00" data-price-will-call-full="1005.00"><td class="sku-col">1103028</td><td class="size-col">3/8 4X8</td><td class="unit-size-col">90</td><td class="description-col">UL SE BXBAND FIR PLYWOOD</td><td class="price-col delivered-only lead-standard">$1,079</td><td class="price-col delivered-only lead-standard">$1,047</td><td class="price-col delivered-only lead-standard">$1,022</td><td class="price-col will-call-only lead-standard">$1,022</td><td class="price-col will-call-only lead-standard">$1,005</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="firul seul 1103022 1/2 4x8 66 ul se bxband fir plywood" data-item="1103022" data-size="1/2 4X8" data-unit-size="66" data-description="UL SE BXBAND FIR PLYWOOD" data-unit-weight="2513.28" data-price-unit="1253.00" data-price-four="1211.00" data-price-truck="1178.00" data-price-will-call-ltl="1178.00" data-price-will-call-full="1156.00"><td class="sku-col">1103022</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">66</td><td class="description-col">UL SE BXBAND FIR PLYWOOD</td><td class="price-col delivered-only lead-standard">$1,253</td><td class="price-col delivered-only lead-standard">$1,211</td><td class="price-col delivered-only lead-standard">$1,178</td><td class="price-col will-call-only lead-standard">$1,178</td><td class="price-col will-call-only lead-standard">$1,156</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="firul seul 1103026 5/8 4x8 53 ul se bxband fir plywood" data-item="1103026" data-size="5/8 4X8" data-unit-size="53" data-description="UL SE BXBAND FIR PLYWOOD" data-unit-weight="2671.20" data-price-unit="1378.00" data-price-four="1326.00" data-price-truck="1285.00" data-price-will-call-ltl="1285.00" data-price-will-call-full="1257.00"><td class="sku-col">1103026</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">53</td><td class="description-col">UL SE BXBAND FIR PLYWOOD</td><td class="price-col delivered-only lead-standard">$1,378</td><td class="price-col delivered-only lead-standard">$1,326</td><td class="price-col delivered-only lead-standard">$1,285</td><td class="price-col will-call-only lead-standard">$1,285</td><td class="price-col will-call-only lead-standard">$1,257</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="firul seul 1103024 3/4 4x8 44 ul se bxband fir plywood" data-item="1103024" data-size="3/4 4X8" data-unit-size="44" data-description="UL SE BXBAND FIR PLYWOOD" data-unit-weight="2590.72" data-price-unit="1484.00" data-price-four="1421.00" data-price-truck="1371.00" data-price-will-call-ltl="1371.00" data-price-will-call-full="1337.00"><td class="sku-col">1103024</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">UL SE BXBAND FIR PLYWOOD</td><td class="price-col delivered-only lead-standard">$1,484</td><td class="price-col delivered-only lead-standard">$1,421</td><td class="price-col delivered-only lead-standard">$1,371</td><td class="price-col will-call-only lead-standard">$1,371</td><td class="price-col will-call-only lead-standard">$1,337</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="type-row"><td colspan="10"><span>TGUL</span></td></tr><tr class="product-row" data-search="firul tgul 1103300 3/4 4x8 44 ply/fir sturdi 24&quot;oc t&amp;g scant western" data-item="1103300" data-size="3/4 4X8" data-unit-size="44" data-description="PLY/FIR STURDI 24&quot;OC T&amp;G SCANT WESTERN" data-unit-weight="2559.74" data-price-unit="1387.00" data-price-four="1324.00" data-price-truck="1274.00" data-price-will-call-ltl="1274.00" data-price-will-call-full="1240.00"><td class="sku-col">1103300</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">PLY/FIR STURDI 24&quot;OC T&amp;G SCANT WESTERN</td><td class="price-col delivered-only lead-standard">$1,387</td><td class="price-col delivered-only lead-standard">$1,324</td><td class="price-col delivered-only lead-standard">$1,274</td><td class="price-col will-call-only lead-standard">$1,274</td><td class="price-col will-call-only lead-standard">$1,240</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr></tbody>
                     </table>
                 </div>
             </section>
@@ -605,6 +855,7 @@
                             <col class="col-price delivered-only">
                             <col class="col-price will-call-only">
                             <col class="col-price will-call-only">
+                            <col class="col-action">
                         </colgroup>
                         <thead>
                             <tr>
@@ -617,9 +868,10 @@
                                 <th class="delivered-only">Truckload</th>
                                 <th class="will-call-only">LTL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Standard TL Price)</span></th>
                                 <th class="will-call-only">Full TL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Deducts Allowance)</span></th>
+                                <th class="action-heading">Load</th>
                             </tr>
                         </thead>
-                        <tbody><tr class="type-row"><td colspan="9"><span>FIR AC/UL</span></td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206702 1/4 4x8 120 ac/ul exterior sanded western fir"><td class="sku-col">1206702</td><td class="size-col">1/4 4X8</td><td class="unit-size-col">120</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col delivered-only lead-standard">$936</td><td class="price-col delivered-only lead-standard">$913</td><td class="price-col delivered-only lead-standard">$895</td><td class="price-col will-call-only lead-standard">$895</td><td class="price-col will-call-only lead-standard">$882</td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206703 3/8 4x8 90 ac/ul exterior sanded western fir"><td class="sku-col">1206703</td><td class="size-col">3/8 4X8</td><td class="unit-size-col">90</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col delivered-only lead-standard">$1,074</td><td class="price-col delivered-only lead-standard">$1,042</td><td class="price-col delivered-only lead-standard">$1,017</td><td class="price-col will-call-only lead-standard">$1,017</td><td class="price-col will-call-only lead-standard">$1,000</td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206714 1/2 4x8 66 ac/ul exterior sanded western fir"><td class="sku-col">1206714</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">66</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col delivered-only lead-standard">$1,383</td><td class="price-col delivered-only lead-standard">$1,341</td><td class="price-col delivered-only lead-standard">$1,308</td><td class="price-col will-call-only lead-standard">$1,308</td><td class="price-col will-call-only lead-standard">$1,286</td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206695 5/8 4x8 53 ac/ul exterior sanded western fir"><td class="sku-col">1206695</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">53</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col delivered-only lead-standard">$1,658</td><td class="price-col delivered-only lead-standard">$1,606</td><td class="price-col delivered-only lead-standard">$1,565</td><td class="price-col will-call-only lead-standard">$1,565</td><td class="price-col will-call-only lead-standard">$1,537</td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206726 3/4 4x8 44 ac/ul exterior sanded western fir"><td class="sku-col">1206726</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col delivered-only lead-standard">$1,852</td><td class="price-col delivered-only lead-standard">$1,789</td><td class="price-col delivered-only lead-standard">$1,739</td><td class="price-col will-call-only lead-standard">$1,739</td><td class="price-col will-call-only lead-standard">$1,705</td></tr><tr class="type-row"><td colspan="9"><span>RADIATA AC/UL</span></td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240004 1/4 4x8 140 ac/ul radiata pine 6mm"><td class="sku-col">1240004</td><td class="size-col">1/4 4X8</td><td class="unit-size-col">140</td><td class="description-col">AC/UL RADIATA PINE 6mm</td><td class="price-col delivered-only lead-standard">$672</td><td class="price-col delivered-only lead-standard">$649</td><td class="price-col delivered-only lead-standard">$631</td><td class="price-col will-call-only lead-standard">$631</td><td class="price-col will-call-only lead-standard">$618</td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240011 3/8 4x8 108 ac/ul radiata pine 9mm"><td class="sku-col">1240011</td><td class="size-col">3/8 4X8</td><td class="unit-size-col">108</td><td class="description-col">AC/UL RADIATA PINE 9mm</td><td class="price-col delivered-only lead-standard">$789</td><td class="price-col delivered-only lead-standard">$757</td><td class="price-col delivered-only lead-standard">$732</td><td class="price-col will-call-only lead-standard">$732</td><td class="price-col will-call-only lead-standard">$714</td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240015 1/2 4x8 80 ac/ul radiata pine 12mm"><td class="sku-col">1240015</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">80</td><td class="description-col">AC/UL RADIATA PINE 12mm</td><td class="price-col delivered-only lead-standard">$1,094</td><td class="price-col delivered-only lead-standard">$1,052</td><td class="price-col delivered-only lead-standard">$1,019</td><td class="price-col will-call-only lead-standard">$1,019</td><td class="price-col will-call-only lead-standard">$995</td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240019 5/8 4x8 65 ac/ul radiata pine 15mm"><td class="sku-col">1240019</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">65</td><td class="description-col">AC/UL RADIATA PINE 15mm</td><td class="price-col delivered-only lead-standard">$1,175</td><td class="price-col delivered-only lead-standard">$1,123</td><td class="price-col delivered-only lead-standard">$1,082</td><td class="price-col will-call-only lead-standard">$1,082</td><td class="price-col will-call-only lead-standard">$1,052</td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240023 3/4 4x8 54 ac/ul radiata pine 18mm"><td class="sku-col">1240023</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">54</td><td class="description-col">AC/UL RADIATA PINE 18mm</td><td class="price-col delivered-only lead-standard">$1,341</td><td class="price-col delivered-only lead-standard">$1,278</td><td class="price-col delivered-only lead-standard">$1,228</td><td class="price-col will-call-only lead-standard">$1,228</td><td class="price-col will-call-only lead-standard">$1,192</td></tr><tr class="type-row"><td colspan="9"><span>MARINE</span></td></tr><tr class="product-row" data-search="sanded marine 1204130 1/2 4x8 60 ab marine fir -custom"><td class="sku-col">1204130</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">60</td><td class="description-col">AB MARINE FIR -CUSTOM<span class="broken-unit">Broken unit: $2,553 /m</span></td><td class="price-col delivered-only lead-red">$2,353</td><td class="price-col delivered-only lead-red">$2,311</td><td class="price-col delivered-only lead-red">$2,278</td><td class="price-col will-call-only lead-red">$2,278</td><td class="price-col will-call-only lead-red">$2,256</td></tr><tr class="product-row" data-search="sanded marine 1204150 3/4 4x8 40 ab marine fir -custom"><td class="sku-col">1204150</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">40</td><td class="description-col">AB MARINE FIR -CUSTOM<span class="broken-unit">Broken unit: $3,199 /m</span></td><td class="price-col delivered-only lead-standard">$2,999</td><td class="price-col delivered-only lead-standard">$2,936</td><td class="price-col delivered-only lead-standard">$2,886</td><td class="price-col will-call-only lead-standard">$2,886</td><td class="price-col will-call-only lead-standard">$2,852</td></tr></tbody>
+                        <tbody><tr class="type-row"><td colspan="10"><span>FIR AC/UL</span></td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206702 1/4 4x8 120 ac/ul exterior sanded western fir" data-item="1206702" data-size="1/4 4X8" data-unit-size="120" data-description="AC/UL EXTERIOR SANDED WESTERN FIR" data-unit-weight="2661.12" data-price-unit="936.00" data-price-four="913.00" data-price-truck="895.00" data-price-will-call-ltl="895.00" data-price-will-call-full="882.00"><td class="sku-col">1206702</td><td class="size-col">1/4 4X8</td><td class="unit-size-col">120</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col delivered-only lead-standard">$936</td><td class="price-col delivered-only lead-standard">$913</td><td class="price-col delivered-only lead-standard">$895</td><td class="price-col will-call-only lead-standard">$895</td><td class="price-col will-call-only lead-standard">$882</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206703 3/8 4x8 90 ac/ul exterior sanded western fir" data-item="1206703" data-size="3/8 4X8" data-unit-size="90" data-description="AC/UL EXTERIOR SANDED WESTERN FIR" data-unit-weight="2583.36" data-price-unit="1074.00" data-price-four="1042.00" data-price-truck="1017.00" data-price-will-call-ltl="1017.00" data-price-will-call-full="1000.00"><td class="sku-col">1206703</td><td class="size-col">3/8 4X8</td><td class="unit-size-col">90</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col delivered-only lead-standard">$1,074</td><td class="price-col delivered-only lead-standard">$1,042</td><td class="price-col delivered-only lead-standard">$1,017</td><td class="price-col will-call-only lead-standard">$1,017</td><td class="price-col will-call-only lead-standard">$1,000</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206714 1/2 4x8 66 ac/ul exterior sanded western fir" data-item="1206714" data-size="1/2 4X8" data-unit-size="66" data-description="AC/UL EXTERIOR SANDED WESTERN FIR" data-unit-weight="2699.14" data-price-unit="1383.00" data-price-four="1341.00" data-price-truck="1308.00" data-price-will-call-ltl="1308.00" data-price-will-call-full="1286.00"><td class="sku-col">1206714</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">66</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col delivered-only lead-standard">$1,383</td><td class="price-col delivered-only lead-standard">$1,341</td><td class="price-col delivered-only lead-standard">$1,308</td><td class="price-col will-call-only lead-standard">$1,308</td><td class="price-col will-call-only lead-standard">$1,286</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206695 5/8 4x8 53 ac/ul exterior sanded western fir" data-item="1206695" data-size="5/8 4X8" data-unit-size="53" data-description="AC/UL EXTERIOR SANDED WESTERN FIR" data-unit-weight="2469.38" data-price-unit="1658.00" data-price-four="1606.00" data-price-truck="1565.00" data-price-will-call-ltl="1565.00" data-price-will-call-full="1537.00"><td class="sku-col">1206695</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">53</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col delivered-only lead-standard">$1,658</td><td class="price-col delivered-only lead-standard">$1,606</td><td class="price-col delivered-only lead-standard">$1,565</td><td class="price-col will-call-only lead-standard">$1,565</td><td class="price-col will-call-only lead-standard">$1,537</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sanded fir ac/ul 1206726 3/4 4x8 44 ac/ul exterior sanded western fir" data-item="1206726" data-size="3/4 4X8" data-unit-size="44" data-description="AC/UL EXTERIOR SANDED WESTERN FIR" data-unit-weight="2427.39" data-price-unit="1852.00" data-price-four="1789.00" data-price-truck="1739.00" data-price-will-call-ltl="1739.00" data-price-will-call-full="1705.00"><td class="sku-col">1206726</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">44</td><td class="description-col">AC/UL EXTERIOR SANDED WESTERN FIR</td><td class="price-col delivered-only lead-standard">$1,852</td><td class="price-col delivered-only lead-standard">$1,789</td><td class="price-col delivered-only lead-standard">$1,739</td><td class="price-col will-call-only lead-standard">$1,739</td><td class="price-col will-call-only lead-standard">$1,705</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="type-row"><td colspan="10"><span>RADIATA AC/UL</span></td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240004 1/4 4x8 140 ac/ul radiata pine 6mm" data-item="1240004" data-size="1/4 4X8" data-unit-size="140" data-description="AC/UL RADIATA PINE 6mm" data-unit-weight="3077.76" data-price-unit="672.00" data-price-four="649.00" data-price-truck="631.00" data-price-will-call-ltl="631.00" data-price-will-call-full="618.00"><td class="sku-col">1240004</td><td class="size-col">1/4 4X8</td><td class="unit-size-col">140</td><td class="description-col">AC/UL RADIATA PINE 6mm</td><td class="price-col delivered-only lead-standard">$672</td><td class="price-col delivered-only lead-standard">$649</td><td class="price-col delivered-only lead-standard">$631</td><td class="price-col will-call-only lead-standard">$631</td><td class="price-col will-call-only lead-standard">$618</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240011 3/8 4x8 108 ac/ul radiata pine 9mm" data-item="1240011" data-size="3/8 4X8" data-unit-size="108" data-description="AC/UL RADIATA PINE 9mm" data-unit-weight="3224.45" data-price-unit="789.00" data-price-four="757.00" data-price-truck="732.00" data-price-will-call-ltl="732.00" data-price-will-call-full="714.00"><td class="sku-col">1240011</td><td class="size-col">3/8 4X8</td><td class="unit-size-col">108</td><td class="description-col">AC/UL RADIATA PINE 9mm</td><td class="price-col delivered-only lead-standard">$789</td><td class="price-col delivered-only lead-standard">$757</td><td class="price-col delivered-only lead-standard">$732</td><td class="price-col will-call-only lead-standard">$732</td><td class="price-col will-call-only lead-standard">$714</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240015 1/2 4x8 80 ac/ul radiata pine 12mm" data-item="1240015" data-size="1/2 4X8" data-unit-size="80" data-description="AC/UL RADIATA PINE 12mm" data-unit-weight="3182.08" data-price-unit="1094.00" data-price-four="1052.00" data-price-truck="1019.00" data-price-will-call-ltl="1019.00" data-price-will-call-full="995.00"><td class="sku-col">1240015</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">80</td><td class="description-col">AC/UL RADIATA PINE 12mm</td><td class="price-col delivered-only lead-standard">$1,094</td><td class="price-col delivered-only lead-standard">$1,052</td><td class="price-col delivered-only lead-standard">$1,019</td><td class="price-col will-call-only lead-standard">$1,019</td><td class="price-col will-call-only lead-standard">$995</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240019 5/8 4x8 65 ac/ul radiata pine 15mm" data-item="1240019" data-size="5/8 4X8" data-unit-size="65" data-description="AC/UL RADIATA PINE 15mm" data-unit-weight="3201.12" data-price-unit="1175.00" data-price-four="1123.00" data-price-truck="1082.00" data-price-will-call-ltl="1082.00" data-price-will-call-full="1052.00"><td class="sku-col">1240019</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">65</td><td class="description-col">AC/UL RADIATA PINE 15mm</td><td class="price-col delivered-only lead-standard">$1,175</td><td class="price-col delivered-only lead-standard">$1,123</td><td class="price-col delivered-only lead-standard">$1,082</td><td class="price-col will-call-only lead-standard">$1,082</td><td class="price-col will-call-only lead-standard">$1,052</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sanded radiata ac/ul 1240023 3/4 4x8 54 ac/ul radiata pine 18mm" data-item="1240023" data-size="3/4 4X8" data-unit-size="54" data-description="AC/UL RADIATA PINE 18mm" data-unit-weight="3229.63" data-price-unit="1341.00" data-price-four="1278.00" data-price-truck="1228.00" data-price-will-call-ltl="1228.00" data-price-will-call-full="1192.00"><td class="sku-col">1240023</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">54</td><td class="description-col">AC/UL RADIATA PINE 18mm</td><td class="price-col delivered-only lead-standard">$1,341</td><td class="price-col delivered-only lead-standard">$1,278</td><td class="price-col delivered-only lead-standard">$1,228</td><td class="price-col will-call-only lead-standard">$1,228</td><td class="price-col will-call-only lead-standard">$1,192</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="type-row"><td colspan="10"><span>MARINE</span></td></tr><tr class="product-row" data-search="sanded marine 1204130 1/2 4x8 60 ab marine fir -custom" data-item="1204130" data-size="1/2 4X8" data-unit-size="60" data-description="AB MARINE FIR -CUSTOM" data-unit-weight="2496.00" data-price-unit="2353.00" data-price-four="2311.00" data-price-truck="2278.00" data-price-will-call-ltl="2278.00" data-price-will-call-full="2256.00"><td class="sku-col">1204130</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">60</td><td class="description-col">AB MARINE FIR -CUSTOM<span class="broken-unit">Broken unit: $2,553 /m</span></td><td class="price-col delivered-only lead-red">$2,353</td><td class="price-col delivered-only lead-red">$2,311</td><td class="price-col delivered-only lead-red">$2,278</td><td class="price-col will-call-only lead-red">$2,278</td><td class="price-col will-call-only lead-red">$2,256</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="sanded marine 1204150 3/4 4x8 40 ab marine fir -custom" data-item="1204150" data-size="3/4 4X8" data-unit-size="40" data-description="AB MARINE FIR -CUSTOM" data-unit-weight="2560.00" data-price-unit="2999.00" data-price-four="2936.00" data-price-truck="2886.00" data-price-will-call-ltl="2886.00" data-price-will-call-full="2852.00"><td class="sku-col">1204150</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">40</td><td class="description-col">AB MARINE FIR -CUSTOM<span class="broken-unit">Broken unit: $3,199 /m</span></td><td class="price-col delivered-only lead-standard">$2,999</td><td class="price-col delivered-only lead-standard">$2,936</td><td class="price-col delivered-only lead-standard">$2,886</td><td class="price-col will-call-only lead-standard">$2,886</td><td class="price-col will-call-only lead-standard">$2,852</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr></tbody>
                     </table>
                 </div>
             </section>
@@ -644,6 +896,7 @@
                             <col class="col-price delivered-only">
                             <col class="col-price will-call-only">
                             <col class="col-price will-call-only">
+                            <col class="col-action">
                         </colgroup>
                         <thead>
                             <tr>
@@ -656,9 +909,10 @@
                                 <th class="delivered-only">Truckload</th>
                                 <th class="will-call-only">LTL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Standard TL Price)</span></th>
                                 <th class="will-call-only">Full TL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Deducts Allowance)</span></th>
+                                <th class="action-heading">Load</th>
                             </tr>
                         </thead>
-                        <tbody><tr class="type-row"><td colspan="9"><span>FIR T111</span></td></tr><tr class="product-row" data-search="siding fir t111 1301440 5/8 4x8 53 t111 fir 8&quot;oc sl 303-18"><td class="sku-col">1301440</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">53</td><td class="description-col">T111 FIR 8&quot;OC SL 303-18</td><td class="price-col delivered-only lead-red">$1,863</td><td class="price-col delivered-only lead-red">$1,811</td><td class="price-col delivered-only lead-red">$1,770</td><td class="price-col will-call-only lead-red">$1,770</td><td class="price-col will-call-only lead-red">$1,742</td></tr><tr class="product-row" data-search="siding fir t111 1301460 5/8 4x10 53 t111 fir 8&quot;oc sl 303-18"><td class="sku-col">1301460</td><td class="size-col">5/8 4X10</td><td class="unit-size-col">53</td><td class="description-col">T111 FIR 8&quot;OC SL 303-18<span class="broken-unit">Broken unit: $2,410 /m</span></td><td class="price-col delivered-only lead-standard">$2,210</td><td class="price-col delivered-only lead-standard">$2,158</td><td class="price-col delivered-only lead-standard">$2,117</td><td class="price-col will-call-only lead-standard">$2,117</td><td class="price-col will-call-only lead-standard">$2,089</td></tr><tr class="type-row"><td colspan="9"><span>RADIATA T111</span></td></tr><tr class="product-row" data-search="siding radiata t111 1325150 5/8 4x8 65 radiata t111 8&quot; oc sl 303-6"><td class="sku-col">1325150</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">65</td><td class="description-col">RADIATA T111 8&quot; OC SL 303-6</td><td class="price-col delivered-only lead-standard">$1,347</td><td class="price-col delivered-only lead-standard">$1,295</td><td class="price-col delivered-only lead-standard">$1,254</td><td class="price-col will-call-only lead-standard">$1,254</td><td class="price-col will-call-only lead-standard">$1,224</td></tr></tbody>
+                        <tbody><tr class="type-row"><td colspan="10"><span>FIR T111</span></td></tr><tr class="product-row" data-search="siding fir t111 1301440 5/8 4x8 53 t111 fir 8&quot;oc sl 303-18" data-item="1301440" data-size="5/8 4X8" data-unit-size="53" data-description="T111 FIR 8&quot;OC SL 303-18" data-unit-weight="2510.08" data-price-unit="1863.00" data-price-four="1811.00" data-price-truck="1770.00" data-price-will-call-ltl="1770.00" data-price-will-call-full="1742.00"><td class="sku-col">1301440</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">53</td><td class="description-col">T111 FIR 8&quot;OC SL 303-18</td><td class="price-col delivered-only lead-red">$1,863</td><td class="price-col delivered-only lead-red">$1,811</td><td class="price-col delivered-only lead-red">$1,770</td><td class="price-col will-call-only lead-red">$1,770</td><td class="price-col will-call-only lead-red">$1,742</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="siding fir t111 1301460 5/8 4x10 53 t111 fir 8&quot;oc sl 303-18" data-item="1301460" data-size="5/8 4X10" data-unit-size="53" data-description="T111 FIR 8&quot;OC SL 303-18" data-unit-weight="3137.60" data-price-unit="2210.00" data-price-four="2158.00" data-price-truck="2117.00" data-price-will-call-ltl="2117.00" data-price-will-call-full="2089.00"><td class="sku-col">1301460</td><td class="size-col">5/8 4X10</td><td class="unit-size-col">53</td><td class="description-col">T111 FIR 8&quot;OC SL 303-18<span class="broken-unit">Broken unit: $2,410 /m</span></td><td class="price-col delivered-only lead-standard">$2,210</td><td class="price-col delivered-only lead-standard">$2,158</td><td class="price-col delivered-only lead-standard">$2,117</td><td class="price-col will-call-only lead-standard">$2,117</td><td class="price-col will-call-only lead-standard">$2,089</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="type-row"><td colspan="10"><span>RADIATA T111</span></td></tr><tr class="product-row" data-search="siding radiata t111 1325150 5/8 4x8 65 radiata t111 8&quot; oc sl 303-6" data-item="1325150" data-size="5/8 4X8" data-unit-size="65" data-description="RADIATA T111 8&quot; OC SL 303-6" data-unit-weight="3201.12" data-price-unit="1347.00" data-price-four="1295.00" data-price-truck="1254.00" data-price-will-call-ltl="1254.00" data-price-will-call-full="1224.00"><td class="sku-col">1325150</td><td class="size-col">5/8 4X8</td><td class="unit-size-col">65</td><td class="description-col">RADIATA T111 8&quot; OC SL 303-6</td><td class="price-col delivered-only lead-standard">$1,347</td><td class="price-col delivered-only lead-standard">$1,295</td><td class="price-col delivered-only lead-standard">$1,254</td><td class="price-col will-call-only lead-standard">$1,254</td><td class="price-col will-call-only lead-standard">$1,224</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr></tbody>
                     </table>
                 </div>
             </section>
@@ -683,6 +937,7 @@
                             <col class="col-price delivered-only">
                             <col class="col-price will-call-only">
                             <col class="col-price will-call-only">
+                            <col class="col-action">
                         </colgroup>
                         <thead>
                             <tr>
@@ -695,9 +950,10 @@
                                 <th class="delivered-only">Truckload</th>
                                 <th class="will-call-only">LTL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Standard TL Price)</span></th>
                                 <th class="will-call-only">Full TL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Deducts Allowance)</span></th>
+                                <th class="action-heading">Load</th>
                             </tr>
                         </thead>
-                        <tbody><tr class="type-row"><td colspan="9"><span>PAINT MDO</span></td></tr><tr class="product-row" data-search="specialty paint mdo 1210210 1/2 4x8 60 mdo g1s - paint grade general use"><td class="sku-col">1210210</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">60</td><td class="description-col">MDO G1S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $2,334 /m</span></td><td class="price-col delivered-only lead-standard">$2,134</td><td class="price-col delivered-only lead-standard">$2,092</td><td class="price-col delivered-only lead-standard">$2,059</td><td class="price-col will-call-only lead-standard">$2,059</td><td class="price-col will-call-only lead-standard">$2,037</td></tr><tr class="product-row" data-search="specialty paint mdo 1210230 1/2 4x8 60 mdo g2s - paint grade general use"><td class="sku-col">1210230</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">60</td><td class="description-col">MDO G2S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $2,504 /m</span></td><td class="price-col delivered-only lead-standard">$2,304</td><td class="price-col delivered-only lead-standard">$2,262</td><td class="price-col delivered-only lead-standard">$2,229</td><td class="price-col will-call-only lead-standard">$2,229</td><td class="price-col will-call-only lead-standard">$2,207</td></tr><tr class="product-row" data-search="specialty paint mdo 1210410 3/4 4x8 40 mdo g1s - paint grade general use"><td class="sku-col">1210410</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">40</td><td class="description-col">MDO G1S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $2,857 /m</span></td><td class="price-col delivered-only lead-standard">$2,657</td><td class="price-col delivered-only lead-standard">$2,594</td><td class="price-col delivered-only lead-standard">$2,544</td><td class="price-col will-call-only lead-standard">$2,544</td><td class="price-col will-call-only lead-standard">$2,510</td></tr><tr class="product-row" data-search="specialty paint mdo 1210430 3/4 4x8 40 mdo g2s - paint grade general use"><td class="sku-col">1210430</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">40</td><td class="description-col">MDO G2S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $3,028 /m</span></td><td class="price-col delivered-only lead-standard">$2,828</td><td class="price-col delivered-only lead-standard">$2,765</td><td class="price-col delivered-only lead-standard">$2,715</td><td class="price-col will-call-only lead-standard">$2,715</td><td class="price-col will-call-only lead-standard">$2,681</td></tr></tbody>
+                        <tbody><tr class="type-row"><td colspan="10"><span>PAINT MDO</span></td></tr><tr class="product-row" data-search="specialty paint mdo 1210210 1/2 4x8 60 mdo g1s - paint grade general use" data-item="1210210" data-size="1/2 4X8" data-unit-size="60" data-description="MDO G1S - PAINT GRADE GENERAL USE" data-unit-weight="2304.00" data-price-unit="2134.00" data-price-four="2092.00" data-price-truck="2059.00" data-price-will-call-ltl="2059.00" data-price-will-call-full="2037.00"><td class="sku-col">1210210</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">60</td><td class="description-col">MDO G1S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $2,334 /m</span></td><td class="price-col delivered-only lead-standard">$2,134</td><td class="price-col delivered-only lead-standard">$2,092</td><td class="price-col delivered-only lead-standard">$2,059</td><td class="price-col will-call-only lead-standard">$2,059</td><td class="price-col will-call-only lead-standard">$2,037</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="specialty paint mdo 1210230 1/2 4x8 60 mdo g2s - paint grade general use" data-item="1210230" data-size="1/2 4X8" data-unit-size="60" data-description="MDO G2S - PAINT GRADE GENERAL USE" data-unit-weight="2304.00" data-price-unit="2304.00" data-price-four="2262.00" data-price-truck="2229.00" data-price-will-call-ltl="2229.00" data-price-will-call-full="2207.00"><td class="sku-col">1210230</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">60</td><td class="description-col">MDO G2S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $2,504 /m</span></td><td class="price-col delivered-only lead-standard">$2,304</td><td class="price-col delivered-only lead-standard">$2,262</td><td class="price-col delivered-only lead-standard">$2,229</td><td class="price-col will-call-only lead-standard">$2,229</td><td class="price-col will-call-only lead-standard">$2,207</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="specialty paint mdo 1210410 3/4 4x8 40 mdo g1s - paint grade general use" data-item="1210410" data-size="3/4 4X8" data-unit-size="40" data-description="MDO G1S - PAINT GRADE GENERAL USE" data-unit-weight="2432.00" data-price-unit="2657.00" data-price-four="2594.00" data-price-truck="2544.00" data-price-will-call-ltl="2544.00" data-price-will-call-full="2510.00"><td class="sku-col">1210410</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">40</td><td class="description-col">MDO G1S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $2,857 /m</span></td><td class="price-col delivered-only lead-standard">$2,657</td><td class="price-col delivered-only lead-standard">$2,594</td><td class="price-col delivered-only lead-standard">$2,544</td><td class="price-col will-call-only lead-standard">$2,544</td><td class="price-col will-call-only lead-standard">$2,510</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="specialty paint mdo 1210430 3/4 4x8 40 mdo g2s - paint grade general use" data-item="1210430" data-size="3/4 4X8" data-unit-size="40" data-description="MDO G2S - PAINT GRADE GENERAL USE" data-unit-weight="2496.00" data-price-unit="2828.00" data-price-four="2765.00" data-price-truck="2715.00" data-price-will-call-ltl="2715.00" data-price-will-call-full="2681.00"><td class="sku-col">1210430</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">40</td><td class="description-col">MDO G2S - PAINT GRADE GENERAL USE<span class="broken-unit">Broken unit: $3,028 /m</span></td><td class="price-col delivered-only lead-standard">$2,828</td><td class="price-col delivered-only lead-standard">$2,765</td><td class="price-col delivered-only lead-standard">$2,715</td><td class="price-col will-call-only lead-standard">$2,715</td><td class="price-col will-call-only lead-standard">$2,681</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr></tbody>
                     </table>
                 </div>
             </section>
@@ -722,6 +978,7 @@
                             <col class="col-price delivered-only">
                             <col class="col-price will-call-only">
                             <col class="col-price will-call-only">
+                            <col class="col-action">
                         </colgroup>
                         <thead>
                             <tr>
@@ -734,9 +991,10 @@
                                 <th class="delivered-only">Truckload</th>
                                 <th class="will-call-only">LTL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Standard TL Price)</span></th>
                                 <th class="will-call-only">Full TL Pickup<br><span style="font-size:9px; opacity:0.8; font-weight:normal;">(Deducts Allowance)</span></th>
+                                <th class="action-heading">Load</th>
                             </tr>
                         </thead>
-                        <tbody><tr class="type-row"><td colspan="9"><span>BIRCH</span></td></tr><tr class="product-row" data-search="hardwood birch 1400110 1/4 4x8 60 a4 domestic birch - fir core - oz"><td class="sku-col">1400110</td><td class="size-col">1/4 4X8</td><td class="unit-size-col">60</td><td class="description-col">A4 DOMESTIC BIRCH - FIR CORE - OZ<span class="broken-unit">Broken unit: $1,690 /m</span></td><td class="price-col delivered-only lead-standard">$1,490</td><td class="price-col delivered-only lead-standard">$1,467</td><td class="price-col delivered-only lead-standard">$1,449</td><td class="price-col will-call-only lead-standard">$1,449</td><td class="price-col will-call-only lead-standard">$1,449</td></tr><tr class="product-row" data-search="hardwood birch 1400411 1/2 4x8 60 a1 domestic birch - fir core - oz"><td class="sku-col">1400411</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">60</td><td class="description-col">A1 DOMESTIC BIRCH - FIR CORE - OZ<span class="broken-unit">Broken unit: $2,635 /m</span></td><td class="price-col delivered-only lead-green">$2,435</td><td class="price-col delivered-only lead-green">$2,393</td><td class="price-col delivered-only lead-green">$2,360</td><td class="price-col will-call-only lead-green">$2,360</td><td class="price-col will-call-only lead-green">$2,336</td></tr><tr class="product-row" data-search="hardwood birch 1400096 3/4 4x8 40 a1 domestic birch - fir core - oz"><td class="sku-col">1400096</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">40</td><td class="description-col">A1 DOMESTIC BIRCH - FIR CORE - OZ<span class="broken-unit">Broken unit: $3,246 /m</span></td><td class="price-col delivered-only lead-standard">$3,046</td><td class="price-col delivered-only lead-standard">$2,983</td><td class="price-col delivered-only lead-standard">$2,933</td><td class="price-col will-call-only lead-standard">$2,933</td><td class="price-col will-call-only lead-standard">$2,895</td></tr><tr class="type-row"><td colspan="9"><span>IMPORT BIRCH</span></td></tr><tr class="product-row" data-search="hardwood import birch 1400393 1/2 4x8 75 c2 import - oz"><td class="sku-col">1400393</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">75</td><td class="description-col">C2 IMPORT - OZ</td><td class="price-col delivered-only lead-standard">$1,293</td><td class="price-col delivered-only lead-standard">$1,251</td><td class="price-col delivered-only lead-standard">$1,218</td><td class="price-col will-call-only lead-standard">$1,218</td><td class="price-col will-call-only lead-standard">$1,194</td></tr><tr class="product-row" data-search="hardwood import birch 1400491 3/4 4x8 50 c2 import - oz"><td class="sku-col">1400491</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">50</td><td class="description-col">C2 IMPORT - OZ</td><td class="price-col delivered-only lead-standard">$1,800</td><td class="price-col delivered-only lead-standard">$1,737</td><td class="price-col delivered-only lead-standard">$1,687</td><td class="price-col will-call-only lead-standard">$1,687</td><td class="price-col will-call-only lead-standard">$1,651</td></tr><tr class="product-row" data-search="hardwood import birch 1400178 5.0mm 105 c2 import ul w/ x pattern"><td class="sku-col">1400178</td><td class="size-col">5.0MM</td><td class="unit-size-col">105</td><td class="description-col">C2 IMPORT UL W/ X PATTERN</td><td class="price-col delivered-only lead-standard">$598</td><td class="price-col delivered-only lead-standard">$575</td><td class="price-col delivered-only lead-standard">$557</td><td class="price-col will-call-only lead-standard">$557</td><td class="price-col will-call-only lead-standard">$544</td></tr><tr class="type-row"><td colspan="9"><span>LAUAN</span></td></tr><tr class="product-row" data-search="hardwood lauan 1402199 5.2mm 90 4x8 ext lauan"><td class="sku-col">1402199</td><td class="size-col">5.2MM</td><td class="unit-size-col">90</td><td class="description-col">4X8 EXT LAUAN</td><td class="price-col delivered-only lead-standard">$570</td><td class="price-col delivered-only lead-standard">$547</td><td class="price-col delivered-only lead-standard">$529</td><td class="price-col will-call-only lead-standard">$529</td><td class="price-col will-call-only lead-standard">$516</td></tr><tr class="product-row" data-search="hardwood lauan 1402205 5.5mm 105 4x8 ext lauan"><td class="sku-col">1402205</td><td class="size-col">5.5MM</td><td class="unit-size-col">105</td><td class="description-col">4X8 EXT LAUAN</td><td class="price-col delivered-only lead-standard">$598</td><td class="price-col delivered-only lead-standard">$575</td><td class="price-col delivered-only lead-standard">$557</td><td class="price-col will-call-only lead-standard">$557</td><td class="price-col will-call-only lead-standard">$544</td></tr></tbody>
+                        <tbody><tr class="type-row"><td colspan="10"><span>BIRCH</span></td></tr><tr class="product-row" data-search="hardwood birch 1400110 1/4 4x8 60 a4 domestic birch - fir core - oz" data-item="1400110" data-size="1/4 4X8" data-unit-size="60" data-description="A4 DOMESTIC BIRCH - FIR CORE - OZ" data-unit-weight="1380.48" data-price-unit="1490.00" data-price-four="1467.00" data-price-truck="1449.00" data-price-will-call-ltl="1449.00" data-price-will-call-full="1449.00"><td class="sku-col">1400110</td><td class="size-col">1/4 4X8</td><td class="unit-size-col">60</td><td class="description-col">A4 DOMESTIC BIRCH - FIR CORE - OZ<span class="broken-unit">Broken unit: $1,690 /m</span></td><td class="price-col delivered-only lead-standard">$1,490</td><td class="price-col delivered-only lead-standard">$1,467</td><td class="price-col delivered-only lead-standard">$1,449</td><td class="price-col will-call-only lead-standard">$1,449</td><td class="price-col will-call-only lead-standard">$1,449</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="hardwood birch 1400411 1/2 4x8 60 a1 domestic birch - fir core - oz" data-item="1400411" data-size="1/2 4X8" data-unit-size="60" data-description="A1 DOMESTIC BIRCH - FIR CORE - OZ" data-unit-weight="2941.44" data-price-unit="2435.00" data-price-four="2393.00" data-price-truck="2360.00" data-price-will-call-ltl="2360.00" data-price-will-call-full="2336.00"><td class="sku-col">1400411</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">60</td><td class="description-col">A1 DOMESTIC BIRCH - FIR CORE - OZ<span class="broken-unit">Broken unit: $2,635 /m</span></td><td class="price-col delivered-only lead-green">$2,435</td><td class="price-col delivered-only lead-green">$2,393</td><td class="price-col delivered-only lead-green">$2,360</td><td class="price-col will-call-only lead-green">$2,360</td><td class="price-col will-call-only lead-green">$2,336</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="hardwood birch 1400096 3/4 4x8 40 a1 domestic birch - fir core - oz" data-item="1400096" data-size="3/4 4X8" data-unit-size="40" data-description="A1 DOMESTIC BIRCH - FIR CORE - OZ" data-unit-weight="2521.60" data-price-unit="3046.00" data-price-four="2983.00" data-price-truck="2933.00" data-price-will-call-ltl="2933.00" data-price-will-call-full="2895.00"><td class="sku-col">1400096</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">40</td><td class="description-col">A1 DOMESTIC BIRCH - FIR CORE - OZ<span class="broken-unit">Broken unit: $3,246 /m</span></td><td class="price-col delivered-only lead-standard">$3,046</td><td class="price-col delivered-only lead-standard">$2,983</td><td class="price-col delivered-only lead-standard">$2,933</td><td class="price-col will-call-only lead-standard">$2,933</td><td class="price-col will-call-only lead-standard">$2,895</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="type-row"><td colspan="10"><span>IMPORT BIRCH</span></td></tr><tr class="product-row" data-search="hardwood import birch 1400393 1/2 4x8 75 c2 import - oz" data-item="1400393" data-size="1/2 4X8" data-unit-size="75" data-description="C2 IMPORT - OZ" data-unit-weight="2400.00" data-price-unit="1293.00" data-price-four="1251.00" data-price-truck="1218.00" data-price-will-call-ltl="1218.00" data-price-will-call-full="1194.00"><td class="sku-col">1400393</td><td class="size-col">1/2 4X8</td><td class="unit-size-col">75</td><td class="description-col">C2 IMPORT - OZ</td><td class="price-col delivered-only lead-standard">$1,293</td><td class="price-col delivered-only lead-standard">$1,251</td><td class="price-col delivered-only lead-standard">$1,218</td><td class="price-col will-call-only lead-standard">$1,218</td><td class="price-col will-call-only lead-standard">$1,194</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="hardwood import birch 1400491 3/4 4x8 50 c2 import - oz" data-item="1400491" data-size="3/4 4X8" data-unit-size="50" data-description="C2 IMPORT - OZ" data-unit-weight="3580.80" data-price-unit="1800.00" data-price-four="1737.00" data-price-truck="1687.00" data-price-will-call-ltl="1687.00" data-price-will-call-full="1651.00"><td class="sku-col">1400491</td><td class="size-col">3/4 4X8</td><td class="unit-size-col">50</td><td class="description-col">C2 IMPORT - OZ</td><td class="price-col delivered-only lead-standard">$1,800</td><td class="price-col delivered-only lead-standard">$1,737</td><td class="price-col delivered-only lead-standard">$1,687</td><td class="price-col will-call-only lead-standard">$1,687</td><td class="price-col will-call-only lead-standard">$1,651</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="hardwood import birch 1400178 5.0mm 105 c2 import ul w/ x pattern" data-item="1400178" data-size="5.0MM" data-unit-size="105" data-description="C2 IMPORT UL W/ X PATTERN" data-unit-weight="1780.80" data-price-unit="598.00" data-price-four="575.00" data-price-truck="557.00" data-price-will-call-ltl="557.00" data-price-will-call-full="544.00"><td class="sku-col">1400178</td><td class="size-col">5.0MM</td><td class="unit-size-col">105</td><td class="description-col">C2 IMPORT UL W/ X PATTERN</td><td class="price-col delivered-only lead-standard">$598</td><td class="price-col delivered-only lead-standard">$575</td><td class="price-col delivered-only lead-standard">$557</td><td class="price-col will-call-only lead-standard">$557</td><td class="price-col will-call-only lead-standard">$544</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="type-row"><td colspan="10"><span>LAUAN</span></td></tr><tr class="product-row" data-search="hardwood lauan 1402199 5.2mm 90 4x8 ext lauan" data-item="1402199" data-size="5.2MM" data-unit-size="90" data-description="4X8 EXT LAUAN" data-unit-weight="1237.50" data-price-unit="570.00" data-price-four="547.00" data-price-truck="529.00" data-price-will-call-ltl="529.00" data-price-will-call-full="516.00"><td class="sku-col">1402199</td><td class="size-col">5.2MM</td><td class="unit-size-col">90</td><td class="description-col">4X8 EXT LAUAN</td><td class="price-col delivered-only lead-standard">$570</td><td class="price-col delivered-only lead-standard">$547</td><td class="price-col delivered-only lead-standard">$529</td><td class="price-col will-call-only lead-standard">$529</td><td class="price-col will-call-only lead-standard">$516</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr><tr class="product-row" data-search="hardwood lauan 1402205 5.5mm 105 4x8 ext lauan" data-item="1402205" data-size="5.5MM" data-unit-size="105" data-description="4X8 EXT LAUAN" data-unit-weight="1890.00" data-price-unit="598.00" data-price-four="575.00" data-price-truck="557.00" data-price-will-call-ltl="557.00" data-price-will-call-full="544.00"><td class="sku-col">1402205</td><td class="size-col">5.5MM</td><td class="unit-size-col">105</td><td class="description-col">4X8 EXT LAUAN</td><td class="price-col delivered-only lead-standard">$598</td><td class="price-col delivered-only lead-standard">$575</td><td class="price-col delivered-only lead-standard">$557</td><td class="price-col will-call-only lead-standard">$557</td><td class="price-col will-call-only lead-standard">$544</td><td class="action-col"><button class="add-cart-button" type="button">Add</button></td></tr></tbody>
                     </table>
                 </div>
             </section>
@@ -752,12 +1010,84 @@
                     Please confirm current pricing with your Boise Cascade representative.
                 </div>
                 <div class="footer-meta">
-                    Generated September 11, 2026 at 5:53 PM<br>
+                    Generated September 15, 2026 at 10:1 AM<br>
                     Boise Cascade Building Materials Distribution · Westfield
                 </div>
             </footer>
         </main>
     </div>
+
+    <div id="cartOverlay" class="cart-overlay" aria-hidden="true"></div>
+    <aside id="cartPanel" class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle" aria-hidden="true">
+        <div class="cart-header">
+            <div>
+                <h2 id="cartTitle">Panel Load Builder</h2>
+                <p>Build a pricing request. This does not place an order.</p>
+            </div>
+            <button id="closeCart" class="cart-close" type="button" aria-label="Close load builder">&times;</button>
+        </div>
+        <div class="cart-scroll">
+            <div id="cartMode" class="cart-mode">Delivered pricing</div>
+            <div id="cartEmpty" class="cart-empty">No products have been added yet.</div>
+            <div id="cartItems" class="cart-items"></div>
+
+            <div id="cartDetails" class="hidden">
+                <div class="cart-summary">
+                    <div class="cart-stat"><span>Total units</span><strong id="cartTotalUnits">0</strong></div>
+                    <div class="cart-stat"><span>Known weight</span><strong id="cartTotalWeight">0 lb</strong></div>
+                    <div class="cart-stat"><span id="cartWeightTargetLabel">To 45,000 lb</span><strong id="cartRemainingWeight">—</strong></div>
+                </div>
+                <div id="cartStatus" class="cart-status"></div>
+                <div id="overweightWarning" class="overweight-warning hidden" role="alert" aria-live="assertive">
+                    <div class="overweight-truck" aria-hidden="true">
+                        <svg viewBox="0 0 120 76" focusable="false">
+                            <path d="M8 18h65v35H8z" fill="#b43127" rx="4"></path>
+                            <path d="M73 30h20l17 17v6H73z" fill="#d84b3f"></path>
+                            <path d="M81 35h10l10 11H81z" fill="#fff" opacity=".92"></path>
+                            <path d="M18 10h44" stroke="#b43127" stroke-width="7" stroke-linecap="round"></path>
+                            <path d="M28 2h24" stroke="#b43127" stroke-width="5" stroke-linecap="round"></path>
+                            <circle cx="29" cy="58" r="10" fill="#353c37"></circle>
+                            <circle cx="29" cy="58" r="4" fill="#fff"></circle>
+                            <circle cx="91" cy="58" r="10" fill="#353c37"></circle>
+                            <circle cx="91" cy="58" r="4" fill="#fff"></circle>
+                            <circle cx="105" cy="13" r="12" fill="#b43127"></circle>
+                            <path d="M105 6v9" stroke="#fff" stroke-width="3" stroke-linecap="round"></path>
+                            <circle cx="105" cy="19" r="2" fill="#fff"></circle>
+                        </svg>
+                    </div>
+                    <div class="overweight-copy">
+                        <strong>TRUCK OVERWEIGHT</strong>
+                        <span id="overweightMessage">Reduce the load before creating an email request.</span>
+                    </div>
+                </div>
+
+                <div class="request-fields">
+                    <div class="request-field">
+                        <label for="requestCustomer">Customer</label>
+                        <input id="requestCustomer" type="text" autocomplete="organization">
+                    </div>
+                    <div class="request-field">
+                        <label for="requestPO">PO / reference</label>
+                        <input id="requestPO" type="text">
+                    </div>
+                    <div class="request-field ship-to">
+                        <label for="requestShipTo">Ship to (required to email)</label>
+                        <input id="requestShipTo" type="text" autocomplete="street-address">
+                    </div>
+                </div>
+
+                <p class="cart-disclaimer">
+                    Pricing remains subject to availability, prior sale, and confirmation by Boise Cascade. Sending this request does not place or reserve an order.
+                </p>
+                <div class="cart-actions">
+                    <button id="copyCart" class="button secondary" type="button">Copy Email Quote</button>
+                    <button id="emailCart" class="button" type="button">Email Request</button>
+                    <button id="clearCart" class="button danger" type="button">Clear Cart</button>
+                </div>
+                <div id="cartMessage" class="cart-message" aria-live="polite"></div>
+            </div>
+        </div>
+    </aside>
 
     <script>
         (() => {
@@ -788,6 +1118,642 @@
             let activeCategory = 'all';
             let arrangeFrame = null;
             let resizeTimer = null;
+
+            const CART_STORAGE_KEY = 'bc-westfield-panel-cart-v1';
+            const CART_REQUEST_KEY = 'bc-westfield-panel-cart-request-v1';
+            const truckloadWeight = 45000;
+            const maximumTruckWeight = 48000;
+            const openCartButton = document.getElementById('openCart');
+            const cartCount = document.getElementById('cartCount');
+            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+            const cartOverlay = document.getElementById('cartOverlay');
+            const cartPanel = document.getElementById('cartPanel');
+            const closeCartButton = document.getElementById('closeCart');
+            const cartMode = document.getElementById('cartMode');
+            const cartEmpty = document.getElementById('cartEmpty');
+            const cartItems = document.getElementById('cartItems');
+            const cartDetails = document.getElementById('cartDetails');
+            const cartTotalUnits = document.getElementById('cartTotalUnits');
+            const cartTotalWeight = document.getElementById('cartTotalWeight');
+            const cartWeightTargetLabel = document.getElementById('cartWeightTargetLabel');
+            const cartRemainingWeight = document.getElementById('cartRemainingWeight');
+            const cartStatus = document.getElementById('cartStatus');
+            const overweightWarning = document.getElementById('overweightWarning');
+            const overweightMessage = document.getElementById('overweightMessage');
+            const cartMessage = document.getElementById('cartMessage');
+            const requestCustomer = document.getElementById('requestCustomer');
+            const requestPO = document.getElementById('requestPO');
+            const requestShipTo = document.getElementById('requestShipTo');
+            const copyCartButton = document.getElementById('copyCart');
+            const emailCartButton = document.getElementById('emailCart');
+            const clearCartButton = document.getElementById('clearCart');
+            const productRowsByItem = new Map(
+                Array.from(document.querySelectorAll('.product-row')).map(
+                    row => [row.dataset.item, row]
+                )
+            );
+
+            function readStoredJson(key, fallback) {
+                try {
+                    const value = JSON.parse(window.localStorage.getItem(key));
+                    return value ?? fallback;
+                } catch (error) {
+                    return fallback;
+                }
+            }
+
+            let cart = readStoredJson(CART_STORAGE_KEY, []);
+            if (!Array.isArray(cart)) cart = [];
+
+            const savedRequest = readStoredJson(CART_REQUEST_KEY, {});
+            requestCustomer.value = savedRequest.customer || '';
+            requestPO.value = savedRequest.po || '';
+            requestShipTo.value = savedRequest.shipTo || '';
+
+            function toNumber(value) {
+                const number = Number(value);
+                return Number.isFinite(number) ? number : 0;
+            }
+
+            function moneyPerM(value) {
+                return `$${Math.round(toNumber(value)).toLocaleString()}/M`;
+            }
+
+            function escapeHtml(value) {
+                return String(value ?? '')
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#039;');
+            }
+
+            function itemFromRow(row) {
+                return {
+                    item: row.dataset.item || '',
+                    size: row.dataset.size || '',
+                    unitSize: row.dataset.unitSize || '',
+                    description: row.dataset.description || '',
+                    unitWeight: toNumber(row.dataset.unitWeight),
+                    prices: {
+                        unit: toNumber(row.dataset.priceUnit),
+                        four: toNumber(row.dataset.priceFour),
+                        truck: toNumber(row.dataset.priceTruck),
+                        willCallLtl: toNumber(row.dataset.priceWillCallLtl),
+                        willCallFull: toNumber(row.dataset.priceWillCallFull),
+                    },
+                    quantity: 1,
+                };
+            }
+
+            function synchronizeCartWithCurrentPage() {
+                cart = cart
+                    .map(savedItem => {
+                        const row = productRowsByItem.get(String(savedItem.item || ''));
+                        if (!row) return null;
+                        const current = itemFromRow(row);
+                        current.quantity = Math.max(1, Math.floor(toNumber(savedItem.quantity) || 1));
+                        return current;
+                    })
+                    .filter(Boolean);
+            }
+
+            function saveCart() {
+                try {
+                    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+                } catch (error) {
+                    // The cart still works for this session when storage is blocked.
+                }
+            }
+
+            function saveRequestFields() {
+                const request = {
+                    customer: requestCustomer.value.trim(),
+                    po: requestPO.value.trim(),
+                    shipTo: requestShipTo.value.trim(),
+                };
+                try {
+                    window.localStorage.setItem(CART_REQUEST_KEY, JSON.stringify(request));
+                } catch (error) {
+                    // Request fields remain available for this session.
+                }
+            }
+
+            function getCartTotals() {
+                const totalUnits = cart.reduce((sum, item) => sum + item.quantity, 0);
+                const missingWeightItems = cart.filter(item => item.unitWeight <= 0);
+                const knownWeight = cart.reduce(
+                    (sum, item) => sum + (item.unitWeight > 0 ? item.unitWeight * item.quantity : 0),
+                    0
+                );
+                const weightsComplete = cart.length > 0 && missingWeightItems.length === 0;
+                const isFullTruck = weightsComplete && knownWeight >= truckloadWeight;
+                const isOverweight = knownWeight > maximumTruckWeight;
+                const overweightBy = Math.max(0, knownWeight - maximumTruckWeight);
+                return {
+                    totalUnits,
+                    missingWeightItems,
+                    knownWeight,
+                    weightsComplete,
+                    isFullTruck,
+                    isOverweight,
+                    overweightBy
+                };
+            }
+
+            function getPricingContext(totals) {
+                const willCall = document.body.classList.contains('will-call-active');
+                if (willCall) {
+                    return {
+                        mode: 'Will Call',
+                        tier: totals.isFullTruck ? 'Full TL Pickup' : 'LTL Pickup',
+                        priceKey: totals.isFullTruck ? 'willCallFull' : 'willCallLtl',
+                    };
+                }
+                if (totals.isFullTruck) {
+                    return { mode: 'Delivered', tier: 'Truckload', priceKey: 'truck' };
+                }
+                if (totals.totalUnits >= 4) {
+                    return { mode: 'Delivered', tier: '4+ units', priceKey: 'four' };
+                }
+                return { mode: 'Delivered', tier: '1 unit', priceKey: 'unit' };
+            }
+
+            function updateAddButtons() {
+                const inCart = new Set(cart.map(item => item.item));
+                document.querySelectorAll('.add-cart-button').forEach(button => {
+                    const added = inCart.has(button.closest('.product-row').dataset.item);
+                    button.classList.toggle('added', added);
+                    button.textContent = added ? 'Added' : 'Add';
+                });
+            }
+
+            function pulseCartConfirmation() {
+                openCartButton.classList.remove('cart-received');
+                cartCount.classList.remove('cart-count-pop');
+                void openCartButton.offsetWidth;
+                openCartButton.classList.add('cart-received');
+                cartCount.classList.add('cart-count-pop');
+                window.setTimeout(() => {
+                    openCartButton.classList.remove('cart-received');
+                    cartCount.classList.remove('cart-count-pop');
+                }, 620);
+            }
+
+            function animateAddToCart(button) {
+                if (reducedMotion.matches || typeof button.animate !== 'function') {
+                    pulseCartConfirmation();
+                    return;
+                }
+
+                const start = button.getBoundingClientRect();
+                const target = openCartButton.getBoundingClientRect();
+                const targetVisible = target.width > 0 && target.height > 0 &&
+                    target.bottom >= 0 && target.top <= window.innerHeight;
+                if (!targetVisible) {
+                    pulseCartConfirmation();
+                    return;
+                }
+
+                const startX = start.left + start.width / 2;
+                const startY = start.top + start.height / 2;
+                const endX = target.left + target.width / 2;
+                const endY = target.top + target.height / 2;
+                const middleX = (startX + endX) / 2;
+                const arcY = Math.min(startY, endY) - Math.min(90, Math.abs(startY - endY) * .12 + 35);
+                const duration = window.matchMedia('(max-width: 820px)').matches ? 420 : 560;
+                const graphic = document.createElement('div');
+                graphic.className = 'flight-panel-stack';
+                graphic.setAttribute('aria-hidden', 'true');
+                graphic.innerHTML = '<i></i><i></i><i></i><b>✓</b>';
+                document.body.appendChild(graphic);
+
+                const animation = graphic.animate([
+                    { left: startX + 'px', top: startY + 'px', transform: 'translate(-50%, -50%) scale(.65)', opacity: 0 },
+                    { left: startX + 'px', top: startY + 'px', transform: 'translate(-50%, -50%) scale(.78)', opacity: 1, offset: .08 },
+                    { left: middleX + 'px', top: arcY + 'px', transform: 'translate(-50%, -50%) scale(1.02) rotate(-8deg)', opacity: 1, offset: .55 },
+                    { left: endX + 'px', top: endY + 'px', transform: 'translate(-50%, -50%) scale(.28) rotate(6deg)', opacity: .15 }
+                ], {
+                    duration: duration,
+                    easing: 'cubic-bezier(.22, .8, .3, 1)',
+                    fill: 'forwards'
+                });
+
+                animation.finished
+                    .catch(() => {})
+                    .finally(() => {
+                        graphic.remove();
+                        pulseCartConfirmation();
+                    });
+            }
+
+            function renderCart() {
+                const totals = getCartTotals();
+                const pricing = getPricingContext(totals);
+                cartCount.textContent = String(totals.totalUnits);
+                cartMode.textContent = `${pricing.mode} pricing · ${pricing.tier} tier`;
+                cartEmpty.classList.toggle('hidden', cart.length > 0);
+                cartDetails.classList.toggle('hidden', cart.length === 0);
+
+                cartItems.innerHTML = cart.map(item => {
+                    const lineWeight = item.unitWeight > 0 ? item.unitWeight * item.quantity : 0;
+                    const weightText = item.unitWeight > 0
+                        ? `${Math.round(lineWeight).toLocaleString()} lb`
+                        : 'Weight unavailable';
+                    const price = item.prices[pricing.priceKey];
+                    return `
+                        <div class="cart-item" data-cart-item="${escapeHtml(item.item)}">
+                            <div class="cart-item-top">
+                                <div>
+                                    <p class="cart-item-title">${escapeHtml(item.item)} · ${escapeHtml(item.size)}</p>
+                                    <div class="cart-item-meta">${escapeHtml(item.description)} · ${escapeHtml(item.unitSize)} pcs/unit</div>
+                                </div>
+                                <button class="cart-remove" type="button" data-remove-item="${escapeHtml(item.item)}">Remove</button>
+                            </div>
+                            <div class="cart-item-controls">
+                                <div>
+                                    <label for="qty-${escapeHtml(item.item)}">Units</label>
+                                    <input id="qty-${escapeHtml(item.item)}" class="cart-qty" type="number" min="1" step="1" value="${item.quantity}" data-qty-item="${escapeHtml(item.item)}">
+                                </div>
+                                <div class="cart-line-price">
+                                    <strong>${moneyPerM(price)}</strong>
+                                    <span>${escapeHtml(pricing.tier)} · ${weightText}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                cartTotalUnits.textContent = totals.totalUnits.toLocaleString();
+                cartTotalWeight.textContent = `${Math.round(totals.knownWeight).toLocaleString()} lb`;
+                cartStatus.classList.remove('warning', 'danger');
+                overweightWarning.classList.toggle('hidden', !totals.isOverweight);
+                emailCartButton.disabled = totals.isOverweight;
+                emailCartButton.textContent = totals.isOverweight ? 'Reduce Weight to Email' : 'Email Request';
+                emailCartButton.title = totals.isOverweight
+                    ? 'Email is disabled until the calculated load is 48,000 lb or less.'
+                    : '';
+                copyCartButton.textContent = totals.isOverweight ? 'Copy Load Review' : 'Copy Email Quote';
+                copyCartButton.title = totals.isOverweight
+                    ? 'Copies an internal overweight-load review instead of a customer quote.'
+                    : 'Copies a formatted quote that can be pasted into an Outlook reply.';
+
+                if (totals.isOverweight) {
+                    const excess = Math.ceil(totals.overweightBy);
+                    cartWeightTargetLabel.textContent = 'Over 48,000 lb';
+                    cartRemainingWeight.textContent = `${excess.toLocaleString()} lb`;
+                    cartStatus.classList.add('danger');
+                    cartStatus.textContent = 'Email is blocked until this load is reduced to 48,000 lb or less.';
+                    overweightMessage.textContent = (
+                        `Calculated load: ${Math.round(totals.knownWeight).toLocaleString()} lb. ` +
+                        `Remove at least ${excess.toLocaleString()} lb before emailing.`
+                    );
+                } else if (!totals.weightsComplete) {
+                    cartWeightTargetLabel.textContent = 'To 45,000 lb';
+                    cartRemainingWeight.textContent = 'Unavailable';
+                    cartStatus.classList.add('warning');
+                    cartStatus.textContent = (
+                        `${totals.missingWeightItems.length} item(s) lack unit weight. ` +
+                        'Truckload pricing is locked; unit-count pricing remains active.'
+                    );
+                } else if (totals.isFullTruck) {
+                    const weightRoom = Math.max(0, maximumTruckWeight - totals.knownWeight);
+                    cartWeightTargetLabel.textContent = 'Weight room';
+                    cartRemainingWeight.textContent = `${Math.floor(weightRoom).toLocaleString()} lb`;
+                    cartStatus.textContent = (
+                        `${pricing.mode} ${pricing.tier} pricing applies to every item in this mixed load.`
+                    );
+                } else {
+                    const remaining = Math.max(0, truckloadWeight - totals.knownWeight);
+                    cartWeightTargetLabel.textContent = 'To 45,000 lb';
+                    cartRemainingWeight.textContent = `${Math.round(remaining).toLocaleString()} lb`;
+                    cartStatus.textContent = (
+                        `${pricing.mode} ${pricing.tier} pricing currently applies to every item in this mixed load.`
+                    );
+                }
+
+                updateAddButtons();
+                saveCart();
+            }
+
+            function openCart() {
+                cartOverlay.classList.add('open');
+                cartPanel.classList.add('open');
+                cartOverlay.setAttribute('aria-hidden', 'false');
+                cartPanel.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                closeCartButton.focus();
+            }
+
+            function closeCart() {
+                cartOverlay.classList.remove('open');
+                cartPanel.classList.remove('open');
+                cartOverlay.setAttribute('aria-hidden', 'true');
+                cartPanel.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                openCartButton.focus();
+            }
+
+            function buildRequestText() {
+                const totals = getCartTotals();
+                const pricing = getPricingContext(totals);
+                const lines = [
+                    'BOISE CASCADE BUILDING MATERIALS DISTRIBUTION',
+                    'WESTFIELD PANEL PRICING REQUEST',
+                    '================================================',
+                    '',
+                    'REQUEST DETAILS',
+                    `Customer: ${requestCustomer.value.trim() || 'Not provided'}`,
+                    `Ship To: ${requestShipTo.value.trim() || 'Not provided'}`,
+                    `PO / Reference: ${requestPO.value.trim() || 'Not provided'}`,
+                    `Pricing mode: ${pricing.mode}`,
+                    `Applied tier: ${pricing.tier}`,
+                    '',
+                    'ITEMS REQUESTED',
+                ];
+
+                cart.forEach(item => {
+                    const price = item.prices[pricing.priceKey];
+                    const weightText = item.unitWeight > 0
+                        ? ` · ${Math.round(item.unitWeight * item.quantity).toLocaleString()} lb`
+                        : ' · weight unavailable';
+                    lines.push(
+                        `- ${item.quantity} unit(s) | Item ${item.item} | ${item.size} | ` +
+                        `${item.description} | ${item.unitSize} pcs/unit | ${moneyPerM(price)}${weightText}`
+                    );
+                });
+
+                lines.push('');
+                lines.push('LOAD SUMMARY');
+                lines.push(`Total units: ${totals.totalUnits}`);
+                lines.push(`Known load weight: ${Math.round(totals.knownWeight).toLocaleString()} lb`);
+                if (totals.isOverweight) {
+                    lines.push(
+                        `WEIGHT WARNING: Over 48,000 lb by ${Math.ceil(totals.overweightBy).toLocaleString()} lb`
+                    );
+                }
+                if (!totals.weightsComplete) {
+                    lines.push('Truckload qualification: unavailable because one or more unit weights are missing');
+                } else {
+                    lines.push(`Truckload qualification: ${totals.isFullTruck ? 'yes' : 'no'}`);
+                }
+                lines.push('');
+                lines.push('Pricing and availability require Boise Cascade confirmation.');
+                lines.push('This request does not place an order or reserve material.');
+                return lines.join('\n');
+            }
+
+            function buildCustomerQuoteText() {
+                const totals = getCartTotals();
+                const pricing = getPricingContext(totals);
+                const lines = [
+                    'BOISE CASCADE BUILDING MATERIALS DISTRIBUTION - WESTFIELD',
+                    'PANEL PRICING QUOTE',
+                    '',
+                    `Customer: ${requestCustomer.value.trim() || 'Not provided'}`,
+                    `Ship To: ${requestShipTo.value.trim() || 'Not provided'}`,
+                    `PO / Reference: ${requestPO.value.trim() || 'Not provided'}`,
+                    `Pricing: ${pricing.mode} - ${pricing.tier}`,
+                    '',
+                    'QUOTED ITEMS',
+                ];
+
+                cart.forEach(item => {
+                    const price = item.prices[pricing.priceKey];
+                    lines.push(
+                        `- ${item.quantity} unit(s) | ${item.item} | ${item.size} | ` +
+                        `${item.description} | ${item.unitSize} pcs/unit | ${moneyPerM(price)}`
+                    );
+                });
+
+                lines.push('');
+                lines.push(`Total units: ${totals.totalUnits}`);
+                lines.push('');
+                lines.push('Pricing is subject to availability, prior sale, and final Boise Cascade confirmation.');
+                lines.push('This quote does not reserve material or place an order.');
+                return lines.join('\n');
+            }
+
+            function buildCustomerQuoteHtml() {
+                const totals = getCartTotals();
+                const pricing = getPricingContext(totals);
+                const logoElement = document.querySelector('.logo');
+                const logoSource = logoElement ? (logoElement.currentSrc || logoElement.src) : '';
+                const logoMarkup = logoSource
+                    ? `<img src="${escapeHtml(logoSource)}" alt="Boise Cascade" width="190" style="display:block;width:190px;max-width:100%;height:auto;border:0;">`
+                    : '<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;color:#1E242B;">Boise Cascade</div>';
+                const rows = cart.map((item, index) => {
+                    const price = item.prices[pricing.priceKey];
+                    const background = index % 2 === 0 ? '#FFFFFF' : '#F3F8F3';
+                    return `
+                        <tr style="background:${background};">
+                            <td style="padding:9px 8px;border-bottom:1px solid #D9E2DA;text-align:right;vertical-align:top;font-family:Arial,sans-serif;font-size:12px;color:#1E242B;">${item.quantity}</td>
+                            <td style="padding:9px 8px;border-bottom:1px solid #D9E2DA;vertical-align:top;font-family:Arial,sans-serif;font-size:12px;font-weight:700;color:#1E242B;white-space:nowrap;">${escapeHtml(item.item)}</td>
+                            <td style="padding:9px 8px;border-bottom:1px solid #D9E2DA;vertical-align:top;font-family:Arial,sans-serif;font-size:12px;color:#1E242B;white-space:nowrap;">${escapeHtml(item.size)}</td>
+                            <td style="padding:9px 8px;border-bottom:1px solid #D9E2DA;vertical-align:top;font-family:Arial,sans-serif;font-size:12px;color:#1E242B;">${escapeHtml(item.description)}</td>
+                            <td style="padding:9px 8px;border-bottom:1px solid #D9E2DA;text-align:right;vertical-align:top;font-family:Arial,sans-serif;font-size:12px;color:#1E242B;white-space:nowrap;">${escapeHtml(item.unitSize)}</td>
+                            <td style="padding:9px 8px;border-bottom:1px solid #D9E2DA;text-align:right;vertical-align:top;font-family:Arial,sans-serif;font-size:12px;font-weight:700;color:#1E5732;white-space:nowrap;">${moneyPerM(price)}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                return `
+                    <div style="margin:0;padding:0;font-family:Arial,sans-serif;color:#1E242B;text-align:left;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:760px;border-collapse:collapse;background:#FFFFFF;">
+                            <tr>
+                                <td style="padding:16px 18px 14px;border:1px solid #D9E2DA;border-bottom:4px solid #49A942;">${logoMarkup}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:18px;border-left:1px solid #D9E2DA;border-right:1px solid #D9E2DA;">
+                                    <div style="font-family:Arial,sans-serif;font-size:21px;font-weight:700;color:#1E5732;line-height:1.2;">Panel Pricing Quote</div>
+                                    <div style="margin-top:4px;font-family:Arial,sans-serif;font-size:12px;color:#3F4C5A;">Boise Cascade Building Materials Distribution - Westfield</div>
+                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin-top:15px;border-collapse:collapse;">
+                                        <tr>
+                                            <td style="width:50%;padding:5px 12px 5px 0;vertical-align:top;font-family:Arial,sans-serif;font-size:12px;"><strong style="color:#1E5732;">Customer:</strong> ${escapeHtml(requestCustomer.value.trim() || 'Not provided')}</td>
+                                            <td style="width:50%;padding:5px 0;vertical-align:top;font-family:Arial,sans-serif;font-size:12px;"><strong style="color:#1E5732;">Ship To:</strong> ${escapeHtml(requestShipTo.value.trim() || 'Not provided')}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width:50%;padding:5px 12px 5px 0;vertical-align:top;font-family:Arial,sans-serif;font-size:12px;"><strong style="color:#1E5732;">PO / Reference:</strong> ${escapeHtml(requestPO.value.trim() || 'Not provided')}</td>
+                                            <td style="width:50%;padding:5px 0;vertical-align:top;font-family:Arial,sans-serif;font-size:12px;"><strong style="color:#1E5732;">Pricing:</strong> ${escapeHtml(pricing.mode)} - ${escapeHtml(pricing.tier)}</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:0 18px 18px;border-left:1px solid #D9E2DA;border-right:1px solid #D9E2DA;">
+                                    <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;border:1px solid #BFCBC1;">
+                                        <thead>
+                                            <tr style="background:#1E5732;">
+                                                <th style="padding:9px 8px;text-align:right;font-family:Arial,sans-serif;font-size:11px;color:#FFFFFF;">Units</th>
+                                                <th style="padding:9px 8px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#FFFFFF;">Item</th>
+                                                <th style="padding:9px 8px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#FFFFFF;">Size</th>
+                                                <th style="padding:9px 8px;text-align:left;font-family:Arial,sans-serif;font-size:11px;color:#FFFFFF;">Description</th>
+                                                <th style="padding:9px 8px;text-align:right;font-family:Arial,sans-serif;font-size:11px;color:#FFFFFF;">Pcs/Unit</th>
+                                                <th style="padding:9px 8px;text-align:right;font-family:Arial,sans-serif;font-size:11px;color:#FFFFFF;">Price/M</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>${rows}</tbody>
+                                    </table>
+                                    <div style="margin-top:11px;font-family:Arial,sans-serif;font-size:12px;font-weight:700;color:#1E5732;">Total units: ${totals.totalUnits.toLocaleString()}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:13px 18px;border:1px solid #D9E2DA;background:#F3F8F3;font-family:Arial,sans-serif;font-size:10px;line-height:1.45;color:#3F4C5A;">
+                                    Pricing is subject to availability, prior sale, and final Boise Cascade confirmation.<br>
+                                    This quote does not reserve material or place an order.
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                `;
+            }
+
+            function copyPlainTextFallback(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.select();
+                const copied = document.execCommand('copy');
+                textarea.remove();
+                return copied;
+            }
+
+            function copyHtmlFallback(htmlContent) {
+                const container = document.createElement('div');
+                container.contentEditable = 'true';
+                container.innerHTML = htmlContent;
+                container.style.position = 'fixed';
+                container.style.left = '-9999px';
+                container.style.top = '0';
+                document.body.appendChild(container);
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(container);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                const copied = document.execCommand('copy');
+                selection.removeAllRanges();
+                container.remove();
+                return copied;
+            }
+
+            async function copyRequest() {
+                const totals = getCartTotals();
+                if (totals.isOverweight) {
+                    const reviewText = buildRequestText();
+                    try {
+                        await navigator.clipboard.writeText(reviewText);
+                    } catch (error) {
+                        copyPlainTextFallback(reviewText);
+                    }
+                    cartMessage.textContent = 'Overweight load review copied for internal use. Do not send it as a customer quote.';
+                    return;
+                }
+
+                const quoteText = buildCustomerQuoteText();
+                const quoteHtml = buildCustomerQuoteHtml();
+                let copiedRich = false;
+                try {
+                    if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) {
+                        const clipboardItem = new ClipboardItem({
+                            'text/html': new Blob([quoteHtml], { type: 'text/html' }),
+                            'text/plain': new Blob([quoteText], { type: 'text/plain' })
+                        });
+                        await navigator.clipboard.write([clipboardItem]);
+                        copiedRich = true;
+                    } else {
+                        copiedRich = copyHtmlFallback(quoteHtml);
+                    }
+                } catch (error) {
+                    copiedRich = copyHtmlFallback(quoteHtml);
+                }
+                if (!copiedRich) copyPlainTextFallback(quoteText);
+                cartMessage.textContent = copiedRich
+                    ? 'Formatted email quote copied. Paste it into your Outlook reply.'
+                    : 'Quote copied as clean text. Paste it into your email reply.';
+            }
+
+            function emailRequest() {
+                const totals = getCartTotals();
+                if (totals.isOverweight) {
+                    cartMessage.textContent = (
+                        `Email blocked: remove at least ${Math.ceil(totals.overweightBy).toLocaleString()} lb ` +
+                        'to bring the load to 48,000 lb or less.'
+                    );
+                    return;
+                }
+                if (!requestShipTo.value.trim()) {
+                    cartMessage.textContent = 'Enter the Ship To before creating the email request.';
+                    requestShipTo.focus();
+                    return;
+                }
+                saveRequestFields();
+                const customer = requestCustomer.value.trim();
+                const shipTo = requestShipTo.value.trim();
+                const subjectParts = ['Panel pricing request'];
+                if (customer) subjectParts.push(customer);
+                if (shipTo) subjectParts.push(shipTo);
+                const subject = subjectParts.join(' | ');
+                const url = (
+                    'mailto:SteveWojcik@bc.com?subject=' + encodeURIComponent(subject) +
+                    '&body=' + encodeURIComponent(buildRequestText())
+                );
+                window.location.href = url;
+            }
+
+            document.querySelectorAll('.add-cart-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const row = button.closest('.product-row');
+                    const itemNumber = row.dataset.item;
+                    const existing = cart.find(item => item.item === itemNumber);
+                    if (existing) {
+                        existing.quantity += 1;
+                    } else {
+                        cart.push(itemFromRow(row));
+                    }
+                    cartMessage.textContent = '';
+                    renderCart();
+                    animateAddToCart(button);
+                });
+            });
+
+            cartItems.addEventListener('input', event => {
+                const input = event.target.closest('[data-qty-item]');
+                if (!input) return;
+                const item = cart.find(entry => entry.item === input.dataset.qtyItem);
+                if (!item) return;
+                item.quantity = Math.max(1, Math.floor(toNumber(input.value) || 1));
+                renderCart();
+            });
+
+            cartItems.addEventListener('click', event => {
+                const button = event.target.closest('[data-remove-item]');
+                if (!button) return;
+                cart = cart.filter(item => item.item !== button.dataset.removeItem);
+                renderCart();
+            });
+
+            [requestCustomer, requestPO, requestShipTo].forEach(input => {
+                input.addEventListener('input', saveRequestFields);
+            });
+
+            openCartButton.addEventListener('click', openCart);
+            closeCartButton.addEventListener('click', closeCart);
+            cartOverlay.addEventListener('click', closeCart);
+            copyCartButton.addEventListener('click', copyRequest);
+            emailCartButton.addEventListener('click', emailRequest);
+            clearCartButton.addEventListener('click', () => {
+                if (!cart.length || window.confirm('Clear every item from this load?')) {
+                    cart = [];
+                    cartMessage.textContent = '';
+                    renderCart();
+                }
+            });
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape' && cartPanel.classList.contains('open')) closeCart();
+            });
 
             function updateCategoryButtons() {
                 categoryButtons.forEach(button => {
@@ -919,6 +1885,7 @@
                     toggleWillCall.classList.add('secondary');
                 }
                 arrangeCategoryCards();
+                renderCart();
             });
 
             search.addEventListener('input', applyFilters);
@@ -943,8 +1910,10 @@
 
             window.addEventListener('afterprint', arrangeCategoryCards);
 
+            synchronizeCartWithCurrentPage();
             updateCategoryButtons();
             applyFilters();
+            renderCart();
         })();
     </script>
 </body>
